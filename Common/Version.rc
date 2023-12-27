@@ -1,0 +1,53 @@
+
+// Author    KMS - Martin Dubois, P. Eng.
+// Copyright (C) 2023 KMS
+// License   http://www.apache.org/licenses/LICENSE-2.0
+// Product   KMS-Tools
+// File      Common/Version.rc
+
+// ===== Windows ============================================================
+#include "Windows.h"
+
+// ===== Common =============================================================
+#include "Version.h"
+
+// Resources
+// //////////////////////////////////////////////////////////////////////////
+
+#ifdef _DEBUG
+	#define VER_DEBUG  VS_FF_DEBUG
+#else
+	#define VER_DEBUG  0
+#endif
+
+VS_VERSION_INFO  VERSIONINFO
+FILEVERSION    	 VERSION_RC
+PRODUCTVERSION   VERSION_RC
+FILEFLAGSMASK  	 VS_FFI_FILEFLAGSMASK
+FILEFLAGS        VER_DEBUG
+FILEOS         	 VOS__WINDOWS32
+FILETYPE       	 VFT_DLL
+FILESUBTYPE    	 VFT2_UNKNOWN
+BEGIN
+	BLOCK "StringFileInfo"
+	BEGIN
+		BLOCK "040904E4"
+		BEGIN
+			VALUE "CompanyName"     , "KMS"
+			VALUE "FileDescription" , "KMS-Tools"
+			VALUE "FileVersion"     , VERSION_STR
+			VALUE "InternalName"    , "KMS-Tools"
+			VALUE "LegalCopyright"  , ""
+			VALUE "LegalTrademarks1", ""
+			VALUE "LegalTrademarks2", ""
+			VALUE "OriginalFilename", "KMS-Tools"
+			VALUE "ProductName"     , VERSION_STR
+			VALUE "ProductVersion"  , VERSION_STR
+		END
+	END
+
+	BLOCK "VarFileInfo"
+	BEGIN
+		VALUE "Translation", 0x409, 1252
+	END
+END

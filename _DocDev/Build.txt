@@ -1,0 +1,38 @@
+
+Author    KMS - Martin Dubois, P. Eng.
+Copyright (C) 2023 KMS
+License   http://www.apache.org/licenses/LICENSE-2.0
+Product   KMS-Tools
+File      _DocDev/Build.txt
+
+Name                _________________________________________________________
+
+Date and time       20 ______ - ______ - ______               ______ : ______
+
+Computer            _________________________________________________________
+
+File "Common/Version.h" - Edit the Version                                [ ]
+
+Version             ______ . ______ . ______ . ______ - _____________________
+                    {Ma}     {Mi}     {Bu}              {Type}
+
+Search "EDIT ON BUILD" and edit found file as needed                      [ ]
+
+===== Linux only ============================================================
+Tool "Terminal" - Un the product folder
+    Binaries/Debug_x86_64/KMS-Build                                       [ ]
+Copy the exported file to the server                                      [ ]
+
+===== Windows only ==========================================================
+Tools "PowerShell" - In the product folder
+        .\Import\Release_Static_x64\KMS-Build.exe                         [ ]
+
+Tools "GIT GUI"
+    - Commit all modified File with {Ma}.{Mi}.{Bu}[-{Type}] Linux|Windows as
+      message                                                             [ ]
+    - Push the servers                                                    [ ]
+If needed, upload the release on GitHub.com                               [ ]
+
+Time and duration   ______ : ______           ______ hours and ______ minutes
+
+Signature           _________________________________________________________

@@ -1,0 +1,33 @@
+
+# Author    KMS - Martin Dubois, P. Eng.
+# Copyright (C) 2023 KMS
+# License   http://www.apache.org/licenses/LICENSE-2.0
+# Product   KMS-Tools
+# File      .gitignore
+
+/Import/
+/Installer/
+
+*.bak
+
+# ===== Linux ===============================================================
+
+/Binaries/
+/Libraries/
+
+*.o
+
+# ===== Visual Studio =======================================================
+
+/.vs/
+
+Debug/
+Release/
+Release_Static/
+x64/
+
+*.vcxproj.user
+
+# ===== Visual Studio Code ==================================================
+
+/.vscode/

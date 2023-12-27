@@ -1,0 +1,28 @@
+
+# Author    KMS - Martin Dubois, P. Eng.
+# Copyright (C) 2023 KMS
+# License   http://www.apache.org/licenses/LICENSE-2.0
+# Product   KMS-Tools
+# File      ModbusTool/Tests/Scope_NORMAL.txt
+
+DeviceAddress = 1
+RemoteAddress = 192.168.0.28:502
+
+Commands += Scope Select Default
+Commands += Scope Frequency 10
+Commands += Scope Mode NORMAL
+Commands += Scope ScaleX 100
+Commands += Scope Channel Random
+Commands += Scope Channel TrigLevel 0
+Commands += Scope Channel Y 384
+Commands += Scope Channel HoldingRegister 514
+Commands += Scope Channel EdgeType RAISING
+Commands += Scope Channel TrigLevel 30
+Commands += Scope Info
+Commands += Scope Show
+Commands += Scope Start
+Commands += Delay 90000
+Commands += Scope Stop
+Commands += Scope Info
+Commands += Scope Delete
+Commands += Exit
