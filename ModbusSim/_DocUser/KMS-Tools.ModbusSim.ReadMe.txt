@@ -3,9 +3,6 @@ Author    KMS - Martin Dubois, P. Eng.
 Copyright (C) 2023 KMS
 License   http://www.apache.org/licenses/LICENSE-2.0
 Product   KMS-Framework
-File      _DocUser/KMS-Tools.ReadMe.txt
+File      ModbusSim/_DocUser/KMS-Tools.ModbusSim.ReadMe.txt
 
 EDIT ON BUILD
-
-* ModbusSim
-* ModbusTool
