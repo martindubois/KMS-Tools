@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ModbusSim", "ModbusSim\Modb
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ComTool", "ComTool\ComTool.vcxproj", "{A85A1FF6-C295-45E6-8E60-4A967CEF56A4}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WOP-Tool", "WOP-Tool\WOP-Tool.vcxproj", "{8C731DE1-ED34-40FB-9712-3DA70224D317}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -55,6 +57,18 @@ Global
 		{A85A1FF6-C295-45E6-8E60-4A967CEF56A4}.Release|x64.Build.0 = Release|x64
 		{A85A1FF6-C295-45E6-8E60-4A967CEF56A4}.Release|x86.ActiveCfg = Release|Win32
 		{A85A1FF6-C295-45E6-8E60-4A967CEF56A4}.Release|x86.Build.0 = Release|Win32
+		{8C731DE1-ED34-40FB-9712-3DA70224D317}.Debug|x64.ActiveCfg = Debug|x64
+		{8C731DE1-ED34-40FB-9712-3DA70224D317}.Debug|x64.Build.0 = Debug|x64
+		{8C731DE1-ED34-40FB-9712-3DA70224D317}.Debug|x86.ActiveCfg = Debug|Win32
+		{8C731DE1-ED34-40FB-9712-3DA70224D317}.Debug|x86.Build.0 = Debug|Win32
+		{8C731DE1-ED34-40FB-9712-3DA70224D317}.Release_Static|x64.ActiveCfg = Release_Static|x64
+		{8C731DE1-ED34-40FB-9712-3DA70224D317}.Release_Static|x64.Build.0 = Release_Static|x64
+		{8C731DE1-ED34-40FB-9712-3DA70224D317}.Release_Static|x86.ActiveCfg = Release|Win32
+		{8C731DE1-ED34-40FB-9712-3DA70224D317}.Release_Static|x86.Build.0 = Release|Win32
+		{8C731DE1-ED34-40FB-9712-3DA70224D317}.Release|x64.ActiveCfg = Release|x64
+		{8C731DE1-ED34-40FB-9712-3DA70224D317}.Release|x64.Build.0 = Release|x64
+		{8C731DE1-ED34-40FB-9712-3DA70224D317}.Release|x86.ActiveCfg = Release|Win32
+		{8C731DE1-ED34-40FB-9712-3DA70224D317}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
