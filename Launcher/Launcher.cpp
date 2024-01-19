@@ -3,7 +3,7 @@
 // Copyright (C) 2024 KMS
 // License   http://www.apache.org/licenses/LICENSE-2.0
 // Product   KMS-Tools
-// File      ComTool/Launcher.cpp
+// File      Launcher/Launcher.cpp
 
 #include <KMS/Base.h>
 
@@ -12,6 +12,7 @@
 #include <KMS/Cfg/MetaData.h>
 #include <KMS/DI/NetAddressRange.h>
 #include <KMS/DI/UInt.h>
+#include <KMS/HTTP/HTTP.h>
 #include <KMS/HTTP/ReactApp.h>
 #include <KMS/HTTP/Transaction.h>
 #include <KMS/Main.h>
@@ -120,11 +121,13 @@ Tool::Tool()
 
     mReactApp.mServer.mSocket.mAllowedRanges.AddEntry(new DI::NetAddressRange("127.0.0.1"), true);
 
-    mReactApp.AddFunction("/API/Detach"     , &ON_DETACH);
-    mReactApp.AddFunction("/API/Exit"       , &ON_EXIT);
-    mReactApp.AddFunction("/API/GetExitCode", &ON_GET_EXIT_CODE);
-    mReactApp.AddFunction("/API/Launch"     , &ON_LAUNCH);
-    mReactApp.AddFunction("/API/Terminate"  , &ON_TERMINATE);
+    mReactApp.mServer.mResponseHeader.AddConstEntry(HTTP::Response::FIELD_NAME_ACCESS_CONTROL_ALLOW_ORIGIN, &HTTP::Response::FIELD_VALUE_ACCESS_CONTROL_ALLOW_ORIGIN_ALL);
+
+    mReactApp.AddFunction("/back-end/Detach"     , &ON_DETACH);
+    mReactApp.AddFunction("/back-end/Exit"       , &ON_EXIT);
+    mReactApp.AddFunction("/back-end/GetExitCode", &ON_GET_EXIT_CODE);
+    mReactApp.AddFunction("/back-end/Launch"     , &ON_LAUNCH);
+    mReactApp.AddFunction("/back-end/Terminate"  , &ON_TERMINATE);
 
     mReactApp.mServer.mSocket.SetLocalPort(8080);
 }
@@ -135,7 +138,7 @@ int Tool::Run()
 {
     mReactApp.mServer.mThread.Start();
 
-    mBrowser.Open(mReactApp.mServer, "", mTitle);
+    mBrowser.Open(mReactApp.mServer, mPage, mTitle);
 
     mBrowser.Wait(60 * 60 * 1000);
 
@@ -149,6 +152,15 @@ int Tool::Run()
 
 static const DI::String E_BAD_REQUEST  ("Bad request");
 static const DI::String E_INVALID_STATE("Invalid state");
+
+static const char* N_ARGUMENTS         = "Arguments";
+static const char* N_DETACH            = "Detach";
+static const char* N_ERROR             = "Error";
+static const char* N_EXIT              = "Exit";
+static const char* N_EXIT_CODE         = "ExitCode";
+static const char* N_RESULT            = "Result";
+static const char* N_STATE             = "State";
+static const char* N_WORKING_DIRECTORY = "WorkingDirectory";
 
 static const DI::String R_ERROR("Error");
 static const DI::String R_OK   ("OK");
@@ -166,20 +178,29 @@ unsigned int Tool::OnDetach(void* aSender, void* aData)
 
     auto lTransaction = reinterpret_cast<HTTP::Transaction*>(aData);
 
-    auto lData = new DI::Dictionary;
-
-    lTransaction->SetResponseData(lData);
-
-    if (nullptr != mProcess)
+    switch (lTransaction->GetType())
     {
-        Detach();
+    case HTTP::Transaction::Type::POST:
+        DI::Dictionary* lResponse;
 
-        lData->AddConstEntry("Result", &R_OK);
-    }
-    else
-    {
-        lData->AddConstEntry("Error" , &E_INVALID_STATE);
-        lData->AddConstEntry("Result", &R_ERROR);
+        lResponse = new DI::Dictionary;
+
+        lTransaction->SetResponseData(lResponse);
+
+        if (nullptr != mProcess)
+        {
+            Detach();
+
+            lResponse->AddConstEntry(N_RESULT, &R_OK);
+        }
+        else
+        {
+            lResponse->AddConstEntry(N_ERROR, &E_INVALID_STATE);
+            lResponse->AddConstEntry(N_RESULT, &R_ERROR);
+        }
+        break;
+
+    default: lTransaction->SetResult(HTTP::Result::METHOD_NOT_ALLOWED);
     }
 
     return 0;
@@ -193,13 +214,22 @@ unsigned int Tool::OnExit(void* aSender, void* aData)
 
     auto lTransaction = reinterpret_cast<HTTP::Transaction*>(aData);
 
-    auto lData = new DI::Dictionary;
+    switch (lTransaction->GetType())
+    {
+    case HTTP::Transaction::Type::POST:
+        DI::Dictionary* lResponse;
 
-    lTransaction->SetResponseData(lData);
+        lResponse = new DI::Dictionary;
 
-    Exit();
+        lTransaction->SetResponseData(lResponse);
 
-    lData->AddConstEntry("Result", &R_OK);
+        Exit();
+
+        lResponse->AddConstEntry(N_RESULT, &R_OK);
+        break;
+
+    default: lTransaction->SetResult(HTTP::Result::METHOD_NOT_ALLOWED);
+    }
 
     return 0;
 }
@@ -215,33 +245,42 @@ unsigned int Tool::OnGetExitCode(void* aSender, void* aData)
 
     auto lTransaction = reinterpret_cast<HTTP::Transaction*>(aData);
 
-    auto lData = new DI::Dictionary;
-
-    lTransaction->SetResponseData(lData);
-
-    if (nullptr != mProcess)
+    switch (lTransaction->GetType())
     {
-        lData->AddConstEntry("Result", &R_OK);
+    case HTTP::Transaction::Type::POST:
+        DI::Dictionary* lResponse;
 
-        if (mProcess->IsRunning())
+        lResponse = new DI::Dictionary;
+
+        lTransaction->SetResponseData(lResponse);
+
+        if (nullptr != mProcess)
         {
-            lData->AddConstEntry("State", &S_RUNNING);
+            lResponse->AddConstEntry(N_RESULT, &R_OK);
+
+            if (mProcess->IsRunning())
+            {
+                lResponse->AddConstEntry(N_STATE, &S_RUNNING);
+            }
+            else
+            {
+                auto lExitCode = mProcess->GetExitCode();
+
+                lResponse->AddEntry(N_EXIT_CODE, new DI::UInt<uint32_t>(lExitCode), true);
+                lResponse->AddConstEntry(N_STATE, &S_STOPPED);
+
+                Process_Delete();
+            }
         }
         else
         {
-            auto lExitCode = mProcess->GetExitCode();
-
-            lData->AddEntry("ExitCode", new DI::UInt<uint32_t>(lExitCode), true);
-            lData->AddConstEntry("State", &S_STOPPED);
-
-            Process_Delete();
+            lResponse->AddConstEntry(N_ERROR, &E_INVALID_STATE);
+            lResponse->AddConstEntry(N_RESULT, &R_ERROR);
+            lResponse->AddConstEntry(N_STATE, &S_INVALID);
         }
-    }
-    else
-    {
-        lData->AddConstEntry("Error" , &E_INVALID_STATE);
-        lData->AddConstEntry("Result", &R_ERROR);
-        lData->AddConstEntry("State" , &S_INVALID);
+        break;
+
+    default: lTransaction->SetResult(HTTP::Result::METHOD_NOT_ALLOWED);
     }
 
     return 0;
@@ -259,70 +298,80 @@ unsigned int Tool::OnLaunch(void* aSender, void* aData)
 {
     assert(nullptr != aData);
 
-    bool lLaunch = false;
-
     auto lTransaction = reinterpret_cast<HTTP::Transaction*>(aData);
 
-    auto lData = new DI::Dictionary;
-
-    lTransaction->SetResponseData(lData);
-
-    auto lData = dynamic_cast<DI::Dictionary*>(lTransaction->GetRequestData());
-    if (nullptr != lData)
+    switch (lTransaction->GetType())
     {
-        auto lDetach = nullptr != lData->GetEntry_R("Detach");
-        auto lExit   = nullptr != lData->GetEntry_R("Exit");
+    case HTTP::Transaction::Type::POST:
+        bool                  lLaunch;
+        const DI::Dictionary* lRequest;
+        DI::Dictionary      * lResponse;
 
-        mProcess = new Proc::Process(File::Folder::NONE, mExec);
+        lLaunch = false;
+        lResponse = new DI::Dictionary;
 
-        auto lArguments = lData->GetEntry_R<DI::Array>("Arguments");
-        if (nullptr != lArguments)
+        lTransaction->SetResponseData(lResponse);
+
+        lRequest = dynamic_cast<const DI::Dictionary*>(lTransaction->GetRequestData());
+        if (nullptr != lRequest)
         {
-            lLaunch = true;
+            auto lDetach = nullptr != lRequest->GetEntry_R(N_DETACH);
+            auto lExit = nullptr != lRequest->GetEntry_R(N_EXIT);
 
-            auto lWorkingDirectory = lData->GetEntry_R<DI::String>("WorkingDirectory");
-            if (nullptr != lWorkingDirectory)
-            {
-                mProcess->SetWorkingDirectory(lWorkingDirectory->Get());
-            }
+            mProcess = new Proc::Process(File::Folder::NONE, mExec);
 
-            for (auto lElement : lArguments->mInternal)
+            auto lArguments = lRequest->GetEntry_R<DI::Array>(N_ARGUMENTS);
+            if (nullptr != lArguments)
             {
-                auto lArgument = dynamic_cast<DI::String*>(lElement.Get());
-                if (nullptr == lArgument)
+                lLaunch = true;
+
+                auto lWorkingDirectory = lRequest->GetEntry_R<DI::String>(N_WORKING_DIRECTORY);
+                if (nullptr != lWorkingDirectory)
                 {
-                    lLaunch = false;
-                    break;
+                    mProcess->SetWorkingDirectory(lWorkingDirectory->Get());
                 }
 
-                mProcess->AddArgument(lArgument.Get());
-            }
-
-            if (lLaunch)
-            {
-                mProcess->Start();
-
-                if (lDetach)
+                for (auto lElement : lArguments->mInternal)
                 {
-                    Detach();
+                    auto lArgument = dynamic_cast<DI::String*>(lElement.Get());
+                    if (nullptr == lArgument)
+                    {
+                        lLaunch = false;
+                        break;
+                    }
+
+                    mProcess->AddArgument(lArgument->Get());
                 }
 
-                if (lExit)
+                if (lLaunch)
                 {
-                    Exit();
-                }
+                    mProcess->Start();
 
-                lData->AddConstEntry("Result", &R_OK);
+                    if (lDetach)
+                    {
+                        Detach();
+                    }
+
+                    if (lExit)
+                    {
+                        Exit();
+                    }
+
+                    lResponse->AddConstEntry(N_RESULT, &R_OK);
+                }
             }
         }
-    }
 
-    if (!lLaunch)
-    {
-        Process_Delete();
+        if (!lLaunch)
+        {
+            Process_Delete();
 
-        lData->AddConstEntry("Error" , &E_BAD_REQUEST);
-        lData->AddConstEntry("Result", &R_ERROR);
+            lResponse->AddConstEntry(N_ERROR, &E_BAD_REQUEST);
+            lResponse->AddConstEntry(N_RESULT, &R_ERROR);
+        }
+        break;
+
+    default: lTransaction->SetResult(HTTP::Result::METHOD_NOT_ALLOWED);
     }
 
     return 0;
@@ -337,22 +386,31 @@ unsigned int Tool::OnTerminate(void* aSender, void* aData)
 
     auto lTransaction = reinterpret_cast<HTTP::Transaction*>(aData);
 
-    auto lData = new DI::Dictionary();
-
-    lTransaction->SetResponseData(lData);
-
-    if (nullptr != mProcess)
+    switch (lTransaction->GetType())
     {
-        mProcess->Terminate();
+    case HTTP::Transaction::Type::POST:
+        DI::Dictionary* lResponse;
 
-        Process_Delete();
+        lResponse = new DI::Dictionary();
 
-        lData->AddConstEntry("Result", &R_OK);
-    }
-    else
-    {
-        lData->AddConstEntry("Error" , &E_INVALID_STATE);
-        lData->AddConstEntry("Result", &R_ERROR);
+        lTransaction->SetResponseData(lResponse);
+
+        if (nullptr != mProcess)
+        {
+            mProcess->Terminate();
+
+            Process_Delete();
+
+            lResponse->AddConstEntry(N_RESULT, &R_OK);
+        }
+        else
+        {
+            lResponse->AddConstEntry(N_ERROR, &E_INVALID_STATE);
+            lResponse->AddConstEntry(N_RESULT, &R_ERROR);
+        }
+        break;
+
+    default: lTransaction->SetResult(HTTP::Result::METHOD_NOT_ALLOWED);
     }
 
     return 0;
