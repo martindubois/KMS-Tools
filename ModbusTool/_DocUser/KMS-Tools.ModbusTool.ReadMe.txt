@@ -1,8 +1,8 @@
 
 Author    KMS - Martin Dubois, P. Eng.
-Copyright (C) 2023-2024 KMS
+Copyright (C) 2024 KMS
 License   http://www.apache.org/licenses/LICENSE-2.0
 Product   KMS-Tools
-File      ModbusSim/_DocUser/KMS-Tools.ModbusSim.ReadMe.txt
+File      ModbusTool/_DocUser/KMS-Tools.ModbusTool.ReadMe.txt
 
 EDIT ON BUILD

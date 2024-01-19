@@ -1,6 +1,6 @@
 
 // Author    KMS - Martin Dubois, P. Eng.
-// Copyright (C) 2023 KMS
+// Copyright (C) 2023-2024 KMS
 // License   http://www.apache.org/licenses/LICENSE-2.0
 // Product   KMS-Tools
 // File      ModbusTool/ModbusTool.cpp
@@ -32,6 +32,8 @@ KMS_RESULT_STATIC(RESULT_MODBUS_ERROR);
 
 #define CONFIG_FILE ("ModbusTool.cfg")
 
+// Class
+// //////////////////////////////////////////////////////////////////////////
 
 class Tool final : public CLI::Tool
 {
@@ -44,8 +46,6 @@ private:
     DI::Dictionary mInputRegisters;
 
 public:
-
-    static int Main(int aCount, const char** aVector);
 
     Tool();
 
