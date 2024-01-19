@@ -1,0 +1,29 @@
+
+Author    Martin Dubois, P. Eng.
+Copyright (C) 2024 KMS
+Product   KMS-Tools
+File      front-end/_DocDev/Build.txt
+
+Name                _________________________________________________________
+
+Date and time       20 ______ - ______ - _______              ______ : ______
+
+File "Common/Version.h"                                                   [ ]
+
+Version             ______ . ______ . ______ . ______
+
+File "front-end/_DocUser/KMS-Tools.front-end.ReadMe.txt"                  [ ]
+File "front-end/src/pages/Layout.js" - Edit the version number            [ ]
+
+Tool "Terminal" - In the "front-end" sub folder
+    ../Import/Binaries/Release/KMS-Build                                  [ ]
+
+Copy the exported file to the server                                      [ ]
+
+Tool "Git"
+- Commit modified file with "{Ma}.{Mi}.{Bu}-front-end" as message         [ ]
+- Push to the servers                                                     [ ]
+
+Time and duration   ______ : ______           ______ hours and ______ minutes
+
+Signature           _________________________________________________________
