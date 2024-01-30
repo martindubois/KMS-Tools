@@ -8,7 +8,7 @@
 import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
 
-const VERSION = '0.0.0'
+const VERSION = '0.0.1'
 
 export default function Layout()
 {

@@ -13,10 +13,9 @@ File "Common/Version.h"                                                   [ ]
 Version             ______ . ______ . ______ . ______
 
 File "front-end/_DocUser/KMS-Tools.front-end.ReadMe.txt"                  [ ]
-File "front-end/src/pages/Layout.js" - Edit the version number            [ ]
 
 Tool "Terminal" - In the "front-end" sub folder
-    ../Import/Binaries/Release/KMS-Build                                  [ ]
+    ../Import/Binaries/Release_x86_64/KMS-Build                           [ ]
 
 Copy the exported file to the server                                      [ ]
 
