@@ -11,4 +11,5 @@ EDIT ON BUILD
 * Launcher
 * ModbusSim
 * ModbusTool
+* PGeo
 * WOP-Tool
