@@ -7,39 +7,50 @@
 
 import { useState } from 'react'
 
-import Enum               from '../components/Enum'
-import File               from '../components/File'
-import Flag               from '../components/Flag'
-import Folder             from '../components/Folder'
-import KMSArguments       from '../components/KMSArguments'
-import LauncherParameters from '../components/LauncherParameters'
-import Soon               from '../components/Soon'
-import Text               from '../components/Text'
+import Enum           from '../components/Enum'
+import File           from '../components/File'
+import Flag           from '../components/Flag'
+import Folder         from '../components/Folder'
+import KMSArguments   from '../components/KMSArguments'
+import LauncherParams from '../components/LauncherParams'
+import Numeric        from '../components/Numeric'
+import Text           from '../components/Text'
+import TextList       from '../components/TextList'
 
 export default function Launcher()
 {
     const [ sErrorMsg, SetErrorMsg ] = useState( '' )
     const [ sKMS     , SetKMS      ] = useState( [] )
     const [ sLauncher, SetLauncher ] = useState( {} )
-    const [ sBrowser_Prefered  , SetBrowser_Prefered   ] = useState( '' )
-    const [ sExec              , SetExec               ] = useState( '' )
-    const [ sFileServer_Root   , SetFileServer_Root    ] = useState( '' )
-    const [ sFileServer_Verbose, SetFileServer_Verbose ] = useState( false )
-    const [ sPage              , SetPage               ] = useState( '' )
-    const [ sSocket_KeepALive  , SetSocket_KeepALive   ] = useState( false )
-    const [ sSocket_NoDelay    , SetSocket_NoDelay     ] = useState( false )
-    const [ sSocket_ReuseAddr  , SetSocket_ReuseAddr   ] = useState( false )
-    const [ sTitle             , SetTitle              ] = useState( '' )
+    const [ sAllowedRanges   , SetAllowedRanges ] = useState( [] )
+    const [ sB_Prefered      , SetB_Prefered    ] = useState( '' )
+    const [ sExec            , SetExec          ] = useState( '' )
+    const [ sFS_Root         , SetFS_Root       ] = useState( '' )
+    const [ sFS_Verbose      , SetFS_Verbose    ] = useState( false )
+    const [ sPage            , SetPage          ] = useState( '' )
+    const [ sRoutes          , SetRoutes        ] = useState( [] )
+    const [ sS_KeepALive     , SetS_KeepALive   ] = useState( false )
+    const [ sS_LocalAddr     , SetS_LocalAddr   ] = useState( '' )
+    const [ sS_NoDelay       , SetS_NoDelay     ] = useState( false )
+    const [ sS_RecvTimeout_ms, SetS_RecvTimeout ] = useState( 0 )
+    const [ sS_ReuseAddr     , SetS_ReuseAddr   ] = useState( false )
+    const [ sS_SendTimeout_ms, SetS_SendTimeout ] = useState( 0 )
+    const [ sTitle           , SetTitle         ] = useState( '' )
 
-    const OnBrowser_PreferedChange   = ( aEvent ) => { SetBrowser_Prefered  ( aEvent.target.value ) }
-    const OnExecChange               = ( aEvent ) => { SetExec              ( aEvent.target.value ) }
-    const OnFileServer_RootChange    = ( aEvent ) => { SetFileServer_Root   ( aEvent.target.value ) }
-    const OnFileServer_VerboseChange = ( aEvent ) => { SetFileServer_Verbose( aEvent.target.checked ) }
-    const OnPageChange               = ( aEvent ) => { SetPage              ( aEvent.target.value ) }
-    const OnSocket_KeepALiveChange   = ( aEvent ) => { SetSocket_KeepALive  ( aEvent.target.checked ) }
-    const OnSocket_NoDelayChange     = ( aEvent ) => { SetSocket_NoDelay    ( aEvent.target.checked ) }
-    const OnSocket_ReuseAddrChange   = ( aEvent ) => { SetSocket_ReuseAddr  ( aEvent.target.checked ) }
-    const OnTitleChange              = ( aEvent ) => { SetTitle             ( aEvent.target.value ) }
+    const OnAllowedRangesChange = ( aData ) => { SetAllowedRanges( aData ) }
+    const OnB_PreferedChange    = ( aData ) => { SetB_Prefered   ( aData ) }
+    const OnExecChange          = ( aData ) => { SetExec         ( aData ) }
+    const OnFS_RootChange       = ( aData ) => { SetFS_Root      ( aData ) }
+    const OnFS_VerboseChange    = ( aData ) => { SetFS_Verbose   ( aData ) }
+    const OnPageChange          = ( aData ) => { SetPage         ( aData ) }
+    const OnRoutesChange        = ( aData ) => { SetRoutes       ( aData ) }
+    const OnS_KeepALiveChange   = ( aData ) => { SetS_KeepALive  ( aData ) }
+    const OnS_LocalAddr         = ( aData ) => { SetS_LocalAddr  ( aData ) }
+    const OnS_NoDelayChange     = ( aData ) => { SetS_NoDelay    ( aData ) }
+    const OnS_RecvTimeoutChange = ( aData ) => { SetS_RecvTimeout( aData ) }
+    const OnS_ReuseAddrChange   = ( aData ) => { SetS_ReuseAddr  ( aData ) }
+    const OnS_SendTimeoutChange = ( aData ) => { SetS_SendTimeout( aData ) }
+    const OnTitleChange         = ( aData ) => { SetTitle        ( aData ) }
 
     const OnError = ( aError ) => { SetErrorMsg( aError.message ) }
 
@@ -53,16 +64,23 @@ export default function Launcher()
 
         lData.Arguments = sKMS
 
-        lData.Arguments.push( 'Exec=' + sExec )
+        if ( sB_Prefered       ) { lData.Arguments.push( 'Browser.Prefered=' + sB_Prefered ) }
+        if ( sExec             ) { lData.Arguments.push( 'Exec=' + sExec ) }
+        if ( sFS_Root          ) { lData.Arguments.push( 'FileServer.Root=' + sFS_Root ) }
+        if ( sFS_Verbose       ) { lData.Arguments.push( 'FileServer.Verbose' ) }
+        if ( sPage             ) { lData.Arguments.push( 'Page=' + sPage ) }
+        if ( sS_KeepALive      ) { lData.Arguments.push( 'Socket.KeepALive' ) }
+        if ( sS_LocalAddr      ) { lData.Arguments.push( 'Socket.LocalAddress=' + sS_LocalAddr ) }
+        if ( sS_NoDelay        ) { lData.Arguments.push( 'Socket.NoDelay' ) }
+        if ( sS_RecvTimeout_ms ) { lData.Arguments.push( 'Socket.ReceiverTimeout=' + sS_RecvTimeout_ms ) }
+        if ( sS_ReuseAddr      ) { lData.Arguments.push( 'Socket_ReuseAddr' ) }
+        if ( sS_SendTimeout_ms ) { lData.Arguments.push( 'Socket.SendTimeout=' + sS_SendTimeout_ms ) }
+        if ( sTitle            ) { lData.Arguments.push( 'Title=' + sTitle ) }
 
-        if ( sBrowser_Prefered   ) { lData.Arguments.push( 'Browser.Prefered=' + sBrowser_Prefered ) }
-        if ( sFileServer_Root    ) { lData.Arguments.push( 'FileServer.Root=' + sFileServer_Root ) }
-        if ( sFileServer_Verbose ) { lData.Arguments.push( 'FileServer.Verbose' ) }
-        if ( sPage               ) { lData.Arguments.push( 'Page=' + sPage ) }
-        if ( sSocket_KeepALive   ) { lData.Arguments.push( 'Socket.KeepALive' ) }
-        if ( sSocket_NoDelay     ) { lData.Arguments.push( 'Socket.NoDelay' ) }
-        if ( sSocket_ReuseAddr   ) { lData.Arguments.push( 'Socket_ReuseAddr' ) }
-        if ( sTitle              ) { lData.Arguments.push( 'Title=' + sTitle ) }
+        for ( let lAllowedRange in sAllowedRanges )
+        {
+            lData.Arguments.push( 'AllowerRanges+=' + lAllowedRange )
+        }
 
         if ( sLauncher.Detach           ) { lData.Detach           = true }
         if ( sLauncher.Exit             ) { lData.Exit             = true }
@@ -88,38 +106,53 @@ export default function Launcher()
             <p className = "error" > { sErrorMsg } </p>
             <table>
                 <tbody>
-                    <Soon Label = "AllowedRanges" />
+                    <TextList Label = "AllowedRanges"
+                              OnChange = { OnAllowedRangesChange }
+                              Values   = { sAllowedRanges } />
                     <Enum Label    = "Browser.Prefered"
                           Message  = "CHROME | DEFAULT | EDGE | FIREFOX | NONE"
-                          OnChange = { OnBrowser_PreferedChange }
+                          OnChange = { OnB_PreferedChange }
                           Options  = { [ 'CHROME', 'DEFAULT', 'EDGE', 'FIREFOX', 'NONE'] }
-                          Value    = { sBrowser_Prefered } />
+                          Value    = { sB_Prefered } />
                     <File Label    = "Exec"
-                          Mandatory
                           OnChange = { OnExecChange }
                           Value    = { sExec } />
                     <Folder Label    = "FileServer.Root"
-                            OnChange = { OnFileServer_RootChange }
-                            Value    = { sFileServer_Root } />
+                            OnChange = { OnFS_RootChange }
+                            Value    = { sFS_Root } />
                     <Flag Label    = "FileServer.Verbose"
-                          OnChange = { OnFileServer_VerboseChange }
-                          Value    = { sFileServer_Verbose } />
+                          OnChange = { OnFS_VerboseChange }
+                          Value    = { sFS_Verbose } />
                     <Text Label    = "Page"
                           OnChange = { OnPageChange }
                           Value    = { sPage } />
-                    <Soon Label = "Routes" />
+                    <TextList Label    = "Routes"
+                              OnChange = { OnRoutesChange }
+                              Values   = { sRoutes } />
                     <Flag Label    = "Socket.KeepALive"
-                          OnChange = { OnSocket_KeepALiveChange }
-                          Value    = { sSocket_KeepALive } />
-                    <Soon Label = "Socket.LocalAddress" />
+                          OnChange = { OnS_KeepALiveChange }
+                          Value    = { sS_KeepALive } />
+                    <Text Label    = "Socket.LocalAddress"
+                          OnChange = { OnS_LocalAddr }
+                          Value    = { sS_LocalAddr } />
                     <Flag Label    = "Socket.NoDelay"
-                          OnChange = { OnSocket_NoDelayChange }
-                          Value    = { sSocket_NoDelay } />
-                    <Soon Label = "Socket.ReceiverTimeout" />
+                          OnChange = { OnS_NoDelayChange }
+                          Value    = { sS_NoDelay } />
+                    <Numeric Label    = "Socket.ReceiverTimeout"
+                             Max      = "60000"
+                             Min      = "0"
+                             OnChange = { OnS_RecvTimeoutChange }
+                             Unit     = "ms"
+                             Value    = { sS_RecvTimeout_ms } />
                     <Flag Label    = "Socket.ReuseAddr"
-                          OnChange = { OnSocket_ReuseAddrChange }
-                          Value    = { sSocket_ReuseAddr } />
-                    <Soon Label = "Socket.SendTimeout" />
+                          OnChange = { OnS_ReuseAddrChange }
+                          Value    = { sS_ReuseAddr } />
+                    <Numeric Label    = "Socket.SendTimeout"
+                             Max      = "60000"
+                             Min      = "0"
+                             OnChange = { OnS_SendTimeoutChange }
+                             Unit     = "ms"
+                             Value    = { sS_SendTimeout_ms } />
                     <Text Label    = "Title"
                           OnChange = { OnTitleChange }
                           Value    = { sTitle } />
@@ -127,7 +160,7 @@ export default function Launcher()
             </table>
             <p />
             <KMSArguments Arguments = { sKMS } OnChange = { OnKMSChange } />
-            <LauncherParameters OnChange = { OnLauncherChange } Parameters = { sLauncher } />
+            <LauncherParams OnChange = { OnLauncherChange } Parameters = { sLauncher } />
             <button onClick = { OnLaunch } > Launch </button>
         </> )
 }

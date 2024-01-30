@@ -7,17 +7,21 @@
 
 // ----- Properties ---------------------------------------------------------
 // Label
+// Message   Optional
 // OnChange
 // Value
 export default function Flag( aProps )
 {
+    const OnChange = ( aEvent ) => { aProps.OnChange( aEvent.target.checked ) }
+
     return (
         <tr>
             <td className = "formlabel" > { aProps.Label } </td>
             <td>
                 <input checked  = { aProps.Value }
-                       onChange = { aProps.OnChange }
+                       onChange = { OnChange }
                        type     = "checkbox" />
             </td>
+            <td> { aProps.Message } </td>
         </tr> )
 }

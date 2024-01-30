@@ -7,10 +7,13 @@
 
 // ----- Properties ---------------------------------------------------------
 // Label
+// Message   Optional
 // OnChange
 // Value
 export default function File( aProps )
 {
+    const OnChange = ( aEvent ) => { aProps.OnChange( aEvent.target.value ) }
+
     let lMandatory = ''
 
     if ( aProps.Mandatory ) { lMandatory = '*' }
@@ -19,10 +22,11 @@ export default function File( aProps )
         <tr>
             <td className = "formlabel" > { aProps.Label } </td>
             <td>
-                <input onChange = { aProps.OnChange }
+                <input onChange = { OnChange }
                        type     = "text"
                        value    = { aProps.Value } />
                 &nbsp; { lMandatory }
             </td>
+            <td> { aProps.Message } </td>
         </tr> )
 }

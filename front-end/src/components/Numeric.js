@@ -3,30 +3,30 @@
 // Copyright (C) 2024 KMS
 // License   http://www.apache.org/licenses/LICENSE-2.0
 // Product   KMS-Tools
-// File      front-end/src/component/Text.js
+// File      front-end/src/component/Numeric.js
 
 // ----- Properties ---------------------------------------------------------
 // Label
-// Message   (Optional)
+// Max
+// Min
 // OnChange
+// Unit      Optional
 // Value
-export default function Text( aProps )
+export default function Enum( aProps )
 {
+
     const OnChange = ( aEvent ) => { aProps.OnChange( aEvent.target.value ) }
-
-    let lMandatory = ''
-
-    if ( aProps.Mandatory ) { lMandatory = '*' }
 
     return (
         <tr>
             <td className = "formlabel" > { aProps.Label } </td>
             <td>
-                <input onChange = { OnChange }
-                       type     = "text"
+                <input max      = { aProps.Max }
+                       min      = { aProps.Min }
+                       onChange = { OnChange }
+                       type     = 'numeric'
                        value    = { aProps.Value } />
-                &nbsp; { lMandatory }
             </td>
-            <td> { aProps.Message } </td>
+            <td> { aProps.Unit } </td>
         </tr> )
 }

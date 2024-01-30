@@ -7,17 +7,21 @@
 
 // ----- Properties ---------------------------------------------------------
 // Label
+// Message   Optional
 // OnChange
 // Value
 export default function Flag( aProps )
 {
+    const OnChange = ( aEvent ) => { aProps.OnChange( aEvent.target.value ) }
+
     return (
         <tr>
             <td className = "formlabel" > { aProps.Label } </td>
             <td>
-                <input onChange = { aProps.OnChange }
+                <input onChange = { OnChange }
                        type     = "text"
                        value    = { aProps.Value } />
             </td>
+            <td> { aProps.Message } </td>
         </tr> )
 }

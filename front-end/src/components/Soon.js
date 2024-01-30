@@ -7,11 +7,13 @@
 
 // ----- Properties ---------------------------------------------------------
 // Label
+// Message  Optional
 export default function Soon( aProps )
 {
     return (
         <tr>
             <td className = "formlabel" > { aProps.Label } </td>
             <td> <b> Soon ! </b> </td>
+            <td> { aProps.Message } </td>
         </tr> )
 }

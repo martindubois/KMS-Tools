@@ -7,59 +7,67 @@
 
 import { useState } from 'react'
 
-import Enum   from './Enum'
-import Flag   from './Flag'
-import File   from './File'
-import Folder from './Folder'
-import Soon   from './Soon'
+import Enum     from './Enum'
+import Flag     from './Flag'
+import File     from './File'
+import FileList from './FileList'
+import Folder   from './Folder'
 
 // ----- Properties ---------------------------------------------------------
 // Arguments
 // OnChange
 export default function KMSArguments( aProps )
 {
-    const [ sAddToPath       , SetAddToPath        ] = useState( aProps.Arguments.includes( 'AddToPath' ) )
-    const [ sDisplayConfig   , SetDisplayConfig    ] = useState( aProps.Arguments.includes( 'DisplayHelp' ) )
-    const [ sHelp            , SetHelp             ] = useState( aProps.Arguments.includes( 'Help' ) )
-    const [ sLog_ConsoleLevel, SetLog_ConsoleLevel ] = useState( ExtractValue( aProps.Arguments, "Log_ConsoleLevel=") )
-    const [ sLog_ConsoleMode , SetLog_ConsoleMode  ] = useState( ExtractValue( aProps.Arguments, "Log_ConsoleMode=") )
-    const [ sLog_FileLevel   , SetLog_FileLevel    ] = useState( ExtractValue( aProps.Arguments, "Log_FileLevel=") )
-    const [ sLog_Folder      , SetLog_Folder       ] = useState( ExtractValue( aProps.Arguments, "Log_Folder=" ) )
-    const [ sRemoveFromPath  , SetRemoveFromPath   ] = useState( aProps.Arguments.includes( 'RemoveFromPath' ) )
-    const [ sSaveConfig      , SetSaveConfig       ] = useState( ExtractValue( aProps.Arguments, "SaveConfig=") )
-    const [ sStats_Console   , SetStats_Console    ] = useState( aProps.Arguments.includes( 'Stats_Console' ) )
-    const [ sStats_Folder    , SetStats_Folder     ] = useState( ExtractValue( aProps.Arguments, "Stats_Folder=" ) )
-    const [ sUninstall       , SetUninstall        ] = useState( aProps.Arguments.includes( 'Uninstall' ) )
+    const [ sAddToPath     , SetAddToPath      ] = useState( aProps.Arguments.includes( 'AddToPath' ) )
+    const [ sConfigFiles   , SetConfigFiles    ] = useState( ExtractValues( aProps.Arguments, "ConfigFiles+=" ) )
+    const [ sDisplayConfig , SetDisplayConfig  ] = useState( aProps.Arguments.includes( 'DisplayHelp' ) )
+    const [ sHelp          , SetHelp           ] = useState( aProps.Arguments.includes( 'Help' ) )
+    const [ sLog_ConLevel  , SetLog_ConLevel   ] = useState( ExtractValue( aProps.Arguments, "Log_ConsoleLevel=") )
+    const [ sLog_ConMode   , SetLog_ConMode    ] = useState( ExtractValue( aProps.Arguments, "Log_ConsoleMode=") )
+    const [ sLog_FileLevel , SetLog_FileLevel  ] = useState( ExtractValue( aProps.Arguments, "Log_FileLevel=") )
+    const [ sLog_Folder    , SetLog_Folder     ] = useState( ExtractValue( aProps.Arguments, "Log_Folder=" ) )
+    const [ sOptConfigFiles, SetOptConfigFiles ] = useState( ExtractValues( aProps.Arguments, "OptionalConfigFiles+=" ) )
+    const [ sRemoveFromPath, SetRemoveFromPath ] = useState( aProps.Arguments.includes( 'RemoveFromPath' ) )
+    const [ sSaveConfig    , SetSaveConfig     ] = useState( ExtractValue( aProps.Arguments, "SaveConfig=") )
+    const [ sStats_Con     , SetStats_Con      ] = useState( aProps.Arguments.includes( 'Stats_Console' ) )
+    const [ sStats_Folder  , SetStats_Folder   ] = useState( ExtractValue( aProps.Arguments, "Stats_Folder=" ) )
+    const [ sUninstall     , SetUninstall      ] = useState( aProps.Arguments.includes( 'Uninstall' ) )
 
-    const OnAddToPathChange        = ( aEvent ) => { SetAddToPath       ( aEvent.target.checked ); CallOnChange() }
-    const OnDisplayConfigChange    = ( aEvent ) => { SetDisplayConfig   ( aEvent.target.checked ); CallOnChange() }
-    const OnHelpChange             = ( aEvent ) => { SetHelp            ( aEvent.target.checked ); CallOnChange() }
-    const OnLog_ConsoleLevelChange = ( aEvent ) => { SetLog_ConsoleLevel( aEvent.target.value   ); CallOnChange() }
-    const OnLog_ConsoleModeChange  = ( aEvent ) => { SetLog_ConsoleMode ( aEvent.target.value   ); CallOnChange() }
-    const OnLog_FileLevelChange    = ( aEvent ) => { SetLog_FileLevel   ( aEvent.target.value   ); CallOnChange() }
-    const OnLog_FolderChange       = ( aEvent ) => { SetLog_Folder      ( aEvent.target.value   ); CallOnChange() }
-    const OnRemoveFromPathChange   = ( aEvent ) => { SetRemoveFromPath  ( aEvent.target.checked ); CallOnChange() }
-    const OnSaveConfigChange       = ( aEvent ) => { SetSaveConfig      ( aEvent.target.value   ); CallOnChange() }
-    const OnStats_ConsoleChange    = ( aEvent ) => { SetStats_Console   ( aEvent.target.checked ); CallOnChange() }
-    const OnStats_FolderChange     = ( aEvent ) => { SetStats_Folder    ( aEvent.target.value   ); CallOnChange() }
-    const OnUninstallChange        = ( aEvent ) => { SetUninstall       ( aEvent.target.checked ); CallOnChange() }
+    const OnAddToPathChange      = ( aData ) => { SetAddToPath     ( aData ); CallOnChange() }
+    const OnConfigFilesChange    = ( aData ) => { SetConfigFiles   ( aData ); CallOnChange() }
+    const OnDisplayConfigChange  = ( aData ) => { SetDisplayConfig ( aData ); CallOnChange() }
+    const OnHelpChange           = ( aData ) => { SetHelp          ( aData ); CallOnChange() }
+    const OnLog_ConLevelChange   = ( aData ) => { SetLog_ConLevel  ( aData ); CallOnChange() }
+    const OnLog_ConModeChange    = ( aData ) => { SetLog_ConMode   ( aData ); CallOnChange() }
+    const OnLog_FileLevelChange  = ( aData ) => { SetLog_FileLevel ( aData ); CallOnChange() }
+    const OnLog_FolderChange     = ( aData ) => { SetLog_Folder    ( aData ); CallOnChange() }
+    const OnOptConfigFilesChange = ( aData ) => { SetOptConfigFiles( aData ); CallOnChange() }
+    const OnRemoveFromPathChange = ( aData ) => { SetRemoveFromPath( aData ); CallOnChange() }
+    const OnSaveConfigChange     = ( aData ) => { SetSaveConfig    ( aData ); CallOnChange() }
+    const OnStats_ConChange      = ( aData ) => { SetStats_Con     ( aData ); CallOnChange() }
+    const OnStats_FolderChange   = ( aData ) => { SetStats_Folder  ( aData ); CallOnChange() }
+    const OnUninstallChange      = ( aData ) => { SetUninstall     ( aData ); CallOnChange() }
 
     const CallOnChange = () =>
     {
         var lArguments = []
 
-        if ( sAddToPath        ) { lArguments.push( 'AddToPath' ) }
-        if ( sDisplayConfig    ) { lArguments.push( 'DisplayConfig' ) }
-        if ( sHelp             ) { lArguments.push( 'Help' ) }
-        if ( sLog_ConsoleLevel ) { lArguments.push( 'Log_ConsoleLevel=' + sLog_ConsoleLevel ) }
-        if ( sLog_ConsoleMode  ) { lArguments.push( 'Log_ConsoleMode=' + sLog_ConsoleMode ) }
-        if ( sLog_FileLevel    ) { lArguments.push( 'Log_FileLevel=' + sLog_FileLevel ) }
-        if ( sLog_Folder       ) { lArguments.push( 'Log_Folder=' + sLog_Folder ) }
-        if ( sRemoveFromPath   ) { lArguments.push( 'RemoveFromPath' ) }
-        if ( sSaveConfig       ) { lArguments.push( 'SaveConfig=' + sSaveConfig ) }
-        if ( sStats_Console    ) { lArguments.push( 'Stats_Console' ) }
-        if ( sStats_Folder     ) { lArguments.push( 'Stats_Folder=' + sStats_Folder ) }
-        if ( sUninstall        ) { lArguments.push( 'Uninstall' ) }
+        if ( sAddToPath      ) { lArguments.push( 'AddToPath' ) }
+        if ( sDisplayConfig  ) { lArguments.push( 'DisplayConfig' ) }
+        if ( sHelp           ) { lArguments.push( 'Help' ) }
+        if ( sLog_ConLevel   ) { lArguments.push( 'Log_ConsoleLevel=' + sLog_ConLevel ) }
+        if ( sLog_ConMode    ) { lArguments.push( 'Log_ConsoleMode=' + sLog_ConMode ) }
+        if ( sLog_FileLevel  ) { lArguments.push( 'Log_FileLevel=' + sLog_FileLevel ) }
+        if ( sLog_Folder     ) { lArguments.push( 'Log_Folder=' + sLog_Folder ) }
+        if ( sRemoveFromPath ) { lArguments.push( 'RemoveFromPath' ) }
+        if ( sSaveConfig     ) { lArguments.push( 'SaveConfig=' + sSaveConfig ) }
+        if ( sStats_Con      ) { lArguments.push( 'Stats_Console' ) }
+        if ( sStats_Folder   ) { lArguments.push( 'Stats_Folder=' + sStats_Folder ) }
+        if ( sUninstall      ) { lArguments.push( 'Uninstall' ) }
+
+        sConfigFiles.map( ( aFile ) => { lArguments.push( "ConfigFiles+=" + aFile ) } )
+
+        sOptConfigFiles.map( ( aFile ) => { lArguments.push( "OptionalConfigFile+=" + aFile ) } )
 
         aProps.OnChange( lArguments )
     }
@@ -73,7 +81,9 @@ export default function KMSArguments( aProps )
                         <Flag Label    = "AddToPath"
                               OnChange = { OnAddToPathChange }
                               Value    = { sAddToPath } />
-                        <Soon Label = "ConfigFiles" />
+                        <FileList Label    = "ConfigFiles"
+                                  OnChange = { OnConfigFilesChange }
+                                  Values   = { sConfigFiles } />
                         <Flag Label    = "DisplayConfig"
                               OnChange = { OnDisplayConfigChange }
                               Value    = { sDisplayConfig } />
@@ -82,14 +92,14 @@ export default function KMSArguments( aProps )
                               Value    = { sHelp } />
                         <Enum Label    = "Log_ConsoleLevel"
                               Message  = "NOISE | INFO | WARNING | ERROR | NONE"
-                              OnChange = { OnLog_ConsoleLevelChange }
+                              OnChange = { OnLog_ConLevelChange }
                               Options  = { [ 'NOISE', 'INFO', 'WARNING', 'ERROR', 'NONE' ] }
-                              Value    = { sLog_ConsoleLevel } />
+                              Value    = { sLog_ConLevel } />
                         <Enum Label    = "Log_ConsoleMode"
                               Message  = "DEBUG | USER"
-                              OnChange = { OnLog_ConsoleModeChange }
+                              OnChange = { OnLog_ConModeChange }
                               Options  = { [ 'DEBUG', 'USER' ] }
-                              Value    = { sLog_ConsoleMode } />
+                              Value    = { sLog_ConMode } />
                         <Enum Label    = "Log_FileLevel"
                               Message  = "NOISE | INFO | WARNING | ERROR | NONE"
                               OnChange = { OnLog_FileLevelChange }
@@ -98,7 +108,9 @@ export default function KMSArguments( aProps )
                         <Folder Label    = "Log_Folder"
                                 OnChange = { OnLog_FolderChange }
                                 Value    = { sLog_Folder } />
-                        <Soon Label = "OptionalConfigFiles" />
+                        <FileList Label    = "OptionalConfigFiles"
+                                  OnChange = { OnOptConfigFilesChange }
+                                  Values   = { sOptConfigFiles } />
                         <Flag Label    = "RemoveFromPath"
                               OnChange = { OnRemoveFromPathChange }
                               Value    = { sRemoveFromPath } />
@@ -106,8 +118,8 @@ export default function KMSArguments( aProps )
                               OnChange = { OnSaveConfigChange }
                               Value    = { sSaveConfig } />
                         <Flag Label    = "Stats_Console"
-                              OnChange = { OnStats_ConsoleChange }
-                              Value    = { sStats_Console } />
+                              OnChange = { OnStats_ConChange }
+                              Value    = { sStats_Con } />
                         <Folder Label    = "Stats_Folder"
                                 OnChange = { OnStats_FolderChange }
                                 Value    = { sStats_Folder } />
@@ -138,4 +150,19 @@ function ExtractValue( aArguments, aName )
     }
 
     return lResult
+}
+
+function ExtractValues( aArguments, aName )
+{
+      let lResults = []
+
+      for ( let lArg in aArguments )
+      {
+          if ( lArg.startsWith( aName ) )
+          {
+              lResults.push( lArg.substring( aName.length ) )
+          }
+      }
+  
+      return lResults 
 }

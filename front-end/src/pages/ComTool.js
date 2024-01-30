@@ -7,8 +7,8 @@
 
 import { useState } from 'react'
 
-import LauncherParameters from '../components/LauncherParameters'
-import KMSArguments       from '../components/KMSArguments'
+import LauncherParams from '../components/LauncherParams'
+import KMSArguments   from '../components/KMSArguments'
 
 export default function ComTool()
 {
@@ -50,7 +50,7 @@ export default function ComTool()
             <h1> ComTool </h1>
             <p className = "error" > { sErrorMsg } </p>
             <KMSArguments Arguments = { sKMS } OnChange = { OnKMSChange } />
-            <LauncherParameters OnChange = { OnLauncherChange } Parameters = { sLauncher } />
+            <LauncherParams OnChange = { OnLauncherChange } Parameters = { sLauncher } />
             <button onClick = { OnLaunch } > Launch </button>
         </> )
 }

@@ -7,12 +7,14 @@
 
 // ----- Properties ---------------------------------------------------------
 // Label
-// Message   (Optional)
+// Message   Optional
 // Options
 // OnChange
 // Value
 export default function Enum( aProps )
 {
+
+    const OnChange = ( aEvent ) => { aProps.OnChange( aEvent.target.value ) }
 
     const Render = ( aOption ) =>
     {
@@ -29,14 +31,15 @@ export default function Enum( aProps )
             <td className = "formlabel" > { aProps.Label } </td>
             <td>
                 <input list     = { aProps.Label }
-                       onChange = { aProps.OnChange }
+                       onChange = { OnChange }
                        type     = 'text'
                        value    = { aProps.Value } />
                 <datalist id = { aProps.Label } >
                     <option value = '' />
                     { aProps.Options.map( Render ) }
                 </datalist>
-                &nbsp; { lMandatory }
+                &nbsp;
+                { lMandatory }
             </td>
             <td> { aProps.Message } </td>
         </tr> )
