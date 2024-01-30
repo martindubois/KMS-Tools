@@ -70,6 +70,40 @@ private:
 
 };
 
+// Constants
+// //////////////////////////////////////////////////////////////////////////
+
+static const Cfg::MetaData MD_EXEC ("Exec = {Exec}");
+static const Cfg::MetaData MD_PAGE ("Page = {Page}");
+static const Cfg::MetaData MD_TITLE("Title = {Title}");
+
+#ifdef _KMS_DARWIN_
+    #define NAME_OS "Darwin"
+    #define NO_OS_0 "Linux"
+    #define NO_OS_1 "Windows"
+#endif
+
+#ifdef _KMS_LINUX_
+    #define NAME_OS "Linux"
+    #define NO_OS_0 "Darwin"
+    #define NO_OS_1 "Windows"
+#endif
+
+#ifdef _KMS_WINDOWS_
+    #define NAME_OS "Windows"
+    #define NO_OS_0 "Darwin"
+    #define NO_OS_1 "Linux"
+#endif
+
+static const KMS::Cfg::MetaData MD_OS_EXEC(NAME_OS "Exec = {Exec}");
+
+static const char* SILENCE[] =
+{
+    NO_OS_0 "Exec", NO_OS_1 "Exec",
+
+    nullptr
+};
+
 // Entry point
 // //////////////////////////////////////////////////////////////////////////
 
@@ -81,11 +115,10 @@ int main(int aCount, const char** aVector)
     {
         Tool lT;
 
+        lConfigurator.SetSilence(SILENCE);
+
         lConfigurator.AddConfigurable(&lT);
-        lConfigurator.AddConfigurable(&lT.mBrowser);
         lConfigurator.AddConfigurable(&lT.mReactApp);
-        lConfigurator.AddConfigurable(&lT.mReactApp.mFileServer);
-        lConfigurator.AddConfigurable(&lT.mReactApp.mServer.mSocket);
 
         KMS_MAIN_PARSE_ARGS(aCount, aVector);
 
@@ -98,13 +131,6 @@ int main(int aCount, const char** aVector)
     KMS_MAIN_RETURN;
 }
 
-// Constants
-// //////////////////////////////////////////////////////////////////////////
-
-static const Cfg::MetaData MD_EXEC ("Exec = {Exec}");
-static const Cfg::MetaData MD_PAGE ("Page = {Page}");
-static const Cfg::MetaData MD_TITLE("Title = {Title}");
-
 // Public
 // //////////////////////////////////////////////////////////////////////////
 
@@ -113,11 +139,15 @@ Tool::Tool()
     , ON_EXIT         (this, &Tool::OnExit)
     , ON_GET_EXIT_CODE(this, &Tool::OnGetExitCode)
     , ON_LAUNCH       (this, &Tool::OnLaunch)
-    , ON_TERMINATE(this, &Tool::OnTerminate)
+    , ON_TERMINATE    (this, &Tool::OnTerminate)
 {
-    AddEntry("Exec" , &mExec , false, &MD_EXEC);
-    AddEntry("Page" , &mPage , false, &MD_PAGE);
-    AddEntry("Title", &mTitle, false, &MD_TITLE);
+    AddEntry("Browser", &mBrowser, false);
+    AddEntry("Exec"   , &mExec , false, &MD_EXEC);
+    AddEntry("Page"   , &mPage , false, &MD_PAGE);
+    AddEntry("Socket" , &mReactApp.mServer.mSocket, false);
+    AddEntry("Title"  , &mTitle, false, &MD_TITLE);
+
+    AddEntry(NAME_OS "Exec", &mExec, false, &MD_OS_EXEC);
 
     mReactApp.mServer.mSocket.mAllowedRanges.AddEntry(new DI::NetAddressRange("127.0.0.1"), true);
 
@@ -129,20 +159,20 @@ Tool::Tool()
     mReactApp.AddFunction("/back-end/Launch"     , &ON_LAUNCH);
     mReactApp.AddFunction("/back-end/Terminate"  , &ON_TERMINATE);
 
-    mReactApp.mServer.mSocket.SetLocalPort(8080);
+    mReactApp.mServer.mSocket.SetLocalPort(0);
 }
 
 Tool::~Tool() { Process_Delete(); }
 
 int Tool::Run()
 {
-    mReactApp.mServer.mThread.Start();
+    mReactApp.mServer.Start();
 
     mBrowser.Open(mReactApp.mServer, mPage, mTitle);
 
     mBrowser.Wait(60 * 60 * 1000);
 
-    mReactApp.mServer.mThread.StopAndWait(60 * 1000);
+    mReactApp.mServer.StopAndWait(60 * 1000);
 
     return 0;
 }
@@ -162,8 +192,8 @@ static const char* N_RESULT            = "Result";
 static const char* N_STATE             = "State";
 static const char* N_WORKING_DIRECTORY = "WorkingDirectory";
 
-static const DI::String R_ERROR("Error");
-static const DI::String R_OK   ("OK");
+static const DI::String RE_ERROR("Error");
+static const DI::String RE_OK   ("OK");
 
 static const DI::String S_INVALID("Invalid");
 static const DI::String S_RUNNING("Running");
@@ -191,12 +221,12 @@ unsigned int Tool::OnDetach(void* aSender, void* aData)
         {
             Detach();
 
-            lResponse->AddConstEntry(N_RESULT, &R_OK);
+            lResponse->AddConstEntry(N_RESULT, &RE_OK);
         }
         else
         {
             lResponse->AddConstEntry(N_ERROR, &E_INVALID_STATE);
-            lResponse->AddConstEntry(N_RESULT, &R_ERROR);
+            lResponse->AddConstEntry(N_RESULT, &RE_ERROR);
         }
         break;
 
@@ -225,7 +255,7 @@ unsigned int Tool::OnExit(void* aSender, void* aData)
 
         Exit();
 
-        lResponse->AddConstEntry(N_RESULT, &R_OK);
+        lResponse->AddConstEntry(N_RESULT, &RE_OK);
         break;
 
     default: lTransaction->SetResult(HTTP::Result::METHOD_NOT_ALLOWED);
@@ -256,7 +286,7 @@ unsigned int Tool::OnGetExitCode(void* aSender, void* aData)
 
         if (nullptr != mProcess)
         {
-            lResponse->AddConstEntry(N_RESULT, &R_OK);
+            lResponse->AddConstEntry(N_RESULT, &RE_OK);
 
             if (mProcess->IsRunning())
             {
@@ -275,7 +305,7 @@ unsigned int Tool::OnGetExitCode(void* aSender, void* aData)
         else
         {
             lResponse->AddConstEntry(N_ERROR, &E_INVALID_STATE);
-            lResponse->AddConstEntry(N_RESULT, &R_ERROR);
+            lResponse->AddConstEntry(N_RESULT, &RE_ERROR);
             lResponse->AddConstEntry(N_STATE, &S_INVALID);
         }
         break;
@@ -347,6 +377,8 @@ unsigned int Tool::OnLaunch(void* aSender, void* aData)
                 {
                     mProcess->Start();
 
+                    printf("%s\n", mProcess->GetCmdLine());
+
                     if (lDetach)
                     {
                         Detach();
@@ -357,7 +389,7 @@ unsigned int Tool::OnLaunch(void* aSender, void* aData)
                         Exit();
                     }
 
-                    lResponse->AddConstEntry(N_RESULT, &R_OK);
+                    lResponse->AddConstEntry(N_RESULT, &RE_OK);
                 }
             }
         }
@@ -367,7 +399,7 @@ unsigned int Tool::OnLaunch(void* aSender, void* aData)
             Process_Delete();
 
             lResponse->AddConstEntry(N_ERROR, &E_BAD_REQUEST);
-            lResponse->AddConstEntry(N_RESULT, &R_ERROR);
+            lResponse->AddConstEntry(N_RESULT, &RE_ERROR);
         }
         break;
 
@@ -401,12 +433,12 @@ unsigned int Tool::OnTerminate(void* aSender, void* aData)
 
             Process_Delete();
 
-            lResponse->AddConstEntry(N_RESULT, &R_OK);
+            lResponse->AddConstEntry(N_RESULT, &RE_OK);
         }
         else
         {
             lResponse->AddConstEntry(N_ERROR, &E_INVALID_STATE);
-            lResponse->AddConstEntry(N_RESULT, &R_ERROR);
+            lResponse->AddConstEntry(N_RESULT, &RE_ERROR);
         }
         break;
 
@@ -426,7 +458,6 @@ void Tool::Detach()
 void Tool::Exit()
 {
     mBrowser.Close();
-    mReactApp.mServer.mThread.Stop();
 
     Process_Delete();
 }
