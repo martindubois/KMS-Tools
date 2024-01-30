@@ -31,7 +31,7 @@ export default function ComTool()
         if ( sLauncher.Detach ) { lData.Detach = true }
         if ( sLauncher.Exit   ) { lData.Exit   = true }
 
-        fetch( 'http://127.0.0.1:8080/back-end/Launch',
+        fetch( '/back-end/Launch',
             {
                 method : 'POST',
                 headers : { 'Content-Type' : 'application/json' },

@@ -22,7 +22,7 @@ export default function Layout()
 
         const lData = {}
 
-        fetch( 'http://127.0.0.1:8080/back-end/Exit',
+        fetch( '/back-end/Exit',
             {
                 method : 'POST',
                 headers : { 'Content-Type' : 'application/json' },

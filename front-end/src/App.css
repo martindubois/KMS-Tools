@@ -11,3 +11,9 @@ p.error
 {
     color: red;
 }
+
+td.formlabel
+{
+    padding-left: 30px;
+    width: 200px;
+}

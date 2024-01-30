@@ -7,20 +7,25 @@
 
 import { useState } from 'react'
 
+import Flag   from './Flag'
+import Folder from './Folder'
+
 // ----- Properties ---------------------------------------------------------
 // OnChange
 // Parameters
 export default function LauncherParameters( aProps )
 {
-    const [ sDetach, SetDetach ] = useState( aProps.Parameters.Detach )
-    const [ sExit  , SetExit   ] = useState( aProps.Parameters.Exit   )
+    const [ sDetach          , SetDetach           ] = useState( aProps.Parameters.Detach )
+    const [ sExit            , SetExit             ] = useState( aProps.Parameters.Exit )
+    const [ sWorkingDirectory, SetWorkingDirectory ] = useState( aProps.Parameters.sWorkingDirectory )
 
-    const OnDetachChange = ( aEvent ) => { SetDetach( aEvent.target.checked ); CallOnChange(); }
-    const OnExitChange   = ( aEvent ) => { SetExit  ( aEvent.target.checked ); CallOnChange(); }
+    const OnDetachChange           = ( aEvent ) => { SetDetach          ( aEvent.target.checked ); CallOnChange(); }
+    const OnExitChange             = ( aEvent ) => { SetExit            ( aEvent.target.checked ); CallOnChange(); }
+    const OnWorkingDirectoryChange = ( aEvent ) => { SetWorkingDirectory( aEvent.target.value   ); CallOnChange(); }
 
     const CallOnChange = () =>
     {
-        const lParameters = { 'Detach' : sDetach, 'Exit' : sExit }
+        const lParameters = { 'Detach' : sDetach, 'Exit' : sExit, 'WorkingDirectoy' : sWorkingDirectory }
 
         aProps.OnChange( lParameters )
     }
@@ -28,24 +33,18 @@ export default function LauncherParameters( aProps )
     return (
         <>
             <details>
-                <summary> Launcher Parameters </summary>
+                <summary> <b> Launcher Parameters </b> </summary>
                 <table>
                     <tbody>
-                        <tr>
-                            <td> </td>
-                            <td> Detach </td>
-                            <td> <input checked = { sDetach } onChange = { OnDetachChange } type = "checkbox" /> </td>
-                        </tr>
-                        <tr>
-                            <td> </td>
-                            <td> Exit </td>
-                            <td> <input checked = { sExit } onChange = { OnExitChange } type = "checkbox" /> </td>
-                        </tr>
-                        <tr>
-                            <td> </td>
-                            <td> WorkingDirectory </td>
-                            <td> <b> Soon ! </b> </td>
-                        </tr>
+                        <Flag Label    = "Detach"
+                              OnChange = { OnDetachChange }
+                              Value    = { sDetach } />
+                        <Flag Label    = "Exit"
+                              OnChange = { OnExitChange }
+                              Value    = { sExit } />
+                        <Folder Label    = "WorkingDirectoy"
+                                OnChange = { OnWorkingDirectoryChange }
+                                Value    = { sWorkingDirectory } />
                     </tbody>
                 </table>
             </details>
