@@ -6,3 +6,5 @@ Product   KMS-Tools
 File      ModbusTool/_DocUser/KMS-Tools.ModbusTool.ReadMe.txt
 
 EDIT ON BUILD
+
+0.0.1-dev 2024-01-31

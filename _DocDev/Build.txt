@@ -25,7 +25,7 @@ Copy the exported file to the server                                      [ ]
 
 ===== Windows only ==========================================================
 Tools "PowerShell" - In the product folder
-        .\Import\Release_Static_x64\KMS-Build.exe                         [ ]
+        .\Import\Binaries\Release_Static_x64\KMS-Build.exe                [ ]
 
 Tools "GIT GUI"
     - Commit all modified File with {Ma}.{Mi}.{Bu}[-{Type}] Linux|Windows as
