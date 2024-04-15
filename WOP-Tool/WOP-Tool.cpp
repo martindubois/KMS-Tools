@@ -96,7 +96,9 @@ Tool::Tool()
 
     mSystem.SetInstances(mInstances, 255);
 
-    AddEntry("Port", &mPort, false);
+    Ptr_OF<DI::Object> lEntry;
+
+    lEntry.Set(&mPort, false); AddEntry("Port", lEntry);
 }
 
 // ===== CLI::Tool ==========================================================

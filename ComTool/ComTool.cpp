@@ -136,9 +136,11 @@ Tool::Tool() : mDataFile(nullptr, DATA_FILE_DEFAULT)
 {
     mDataFile.SetMode("wb");
 
-    AddEntry("DataFile", &mDataFile, false, &MD_DATA_FILE);
+    Ptr_OF<DI::Object> lEntry;
 
-    AddEntry("Port", &mPort, false);
+    lEntry.Set(&mDataFile, false); AddEntry("DataFile", lEntry, &MD_DATA_FILE);
+
+    lEntry.Set(&mPort, false); AddEntry("Port", lEntry);
 }
 
 void Tool::Receive(unsigned int aSize_byte, unsigned int aFlags)

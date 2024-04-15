@@ -81,8 +81,10 @@ Tool::Tool()
     : mConfidence (CONFIDENCE_DEFAULT)
     , mProbability(PROBABILITY_DEFAULT)
 {
-    AddEntry("Confidence" , &mConfidence , false, &MD_CONFIDENCE);
-    AddEntry("Probability", &mProbability, false, &MD_PROBABILITY);
+    Ptr_OF<DI::Object> lEntry;
+
+    lEntry.Set(&mConfidence , false); AddEntry("Confidence" , lEntry, &MD_CONFIDENCE);
+    lEntry.Set(&mProbability, false); AddEntry("Probability", lEntry, &MD_PROBABILITY);
 }
 
 int Tool::Run()

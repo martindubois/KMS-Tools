@@ -186,11 +186,13 @@ Tool::Tool()
     mDiscreteInputs  .SetCreator(CreateItem);
     mHoldingRegisters.SetCreator(CreateItem);
     mInputRegisters  .SetCreator(CreateItem);
+    
+    Ptr_OF<DI::Object> lEntry;
 
-    AddEntry("Coils"           , &mCoils           , false, &MD_COILS);
-    AddEntry("DiscreteInputs"  , &mDiscreteInputs  , false, &MD_DISCRETE_INPUTS);
-    AddEntry("HoldingRegisters", &mHoldingRegisters, false, &MD_HOLDING_REGISTERS);
-    AddEntry("InputRegisters"  , &mInputRegisters  , false, &MD_INPUT_REGISTERS);
+    lEntry.Set(&mCoils           , false); AddEntry("Coils"           , lEntry, &MD_COILS);
+    lEntry.Set(&mDiscreteInputs  , false); AddEntry("DiscreteInputs"  , lEntry, &MD_DISCRETE_INPUTS);
+    lEntry.Set(&mHoldingRegisters, false); AddEntry("HoldingRegisters", lEntry, &MD_HOLDING_REGISTERS);
+    lEntry.Set(&mInputRegisters  , false); AddEntry("InputRegisters"  , lEntry, &MD_INPUT_REGISTERS);
 }
 
 void Tool::InitSlave(Modbus::Slave* aSlave)

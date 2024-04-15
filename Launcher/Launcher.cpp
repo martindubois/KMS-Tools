@@ -141,17 +141,21 @@ Tool::Tool()
     , ON_LAUNCH       (this, &Tool::OnLaunch)
     , ON_TERMINATE    (this, &Tool::OnTerminate)
 {
-    AddEntry("Browser", &mBrowser, false);
-    AddEntry("Exec"   , &mExec , false, &MD_EXEC);
-    AddEntry("Page"   , &mPage , false, &MD_PAGE);
-    AddEntry("Socket" , &mReactApp.mServer.mSocket, false);
-    AddEntry("Title"  , &mTitle, false, &MD_TITLE);
+    Ptr_OF<DI::Object> lEntry;
 
-    AddEntry(NAME_OS "Exec", &mExec, false, &MD_OS_EXEC);
+    lEntry.Set(&mBrowser                 , false); AddEntry("Browser", lEntry);
+    lEntry.Set(&mExec                    , false); AddEntry("Exec"   , lEntry, &MD_EXEC);
+    lEntry.Set(&mPage                    , false); AddEntry("Page"   , lEntry, &MD_PAGE);
+    lEntry.Set(&mReactApp.mServer.mSocket, false); AddEntry("Socket" , lEntry);
+    lEntry.Set(&mTitle                   , false); AddEntry("Title"  , lEntry, &MD_TITLE);
 
-    mReactApp.mServer.mSocket.mAllowedRanges.AddEntry(new DI::NetAddressRange("127.0.0.1"), true);
+    lEntry.Set(&mExec, false); AddEntry(NAME_OS "Exec", lEntry, &MD_OS_EXEC);
 
-    mReactApp.mServer.mResponseHeader.AddConstEntry(HTTP::Response::FIELD_NAME_ACCESS_CONTROL_ALLOW_ORIGIN, &HTTP::Response::FIELD_VALUE_ACCESS_CONTROL_ALLOW_ORIGIN_ALL);
+    lEntry.Set(new DI::NetAddressRange("127.0.0.1"), true);
+    mReactApp.mServer.mSocket.mAllowedRanges.AddEntry(lEntry);
+
+    lEntry.Set(&HTTP::Response::FIELD_VALUE_ACCESS_CONTROL_ALLOW_ORIGIN_ALL);
+    mReactApp.mServer.mResponseHeader.AddEntry(HTTP::Response::FIELD_NAME_ACCESS_CONTROL_ALLOW_ORIGIN, lEntry);
 
     mReactApp.AddFunction("/back-end/Detach"     , &ON_DETACH);
     mReactApp.AddFunction("/back-end/Exit"       , &ON_EXIT);
@@ -206,6 +210,8 @@ unsigned int Tool::OnDetach(void* aSender, void* aData)
 {
     assert(nullptr != aData);
 
+    Ptr_OF<DI::Object> lEntry;
+
     auto lTransaction = reinterpret_cast<HTTP::Transaction*>(aData);
 
     switch (lTransaction->GetType())
@@ -214,19 +220,20 @@ unsigned int Tool::OnDetach(void* aSender, void* aData)
         DI::Dictionary* lResponse;
 
         lResponse = new DI::Dictionary;
+        lEntry.Set(lResponse, true);
 
-        lTransaction->SetResponseData(lResponse);
+        lTransaction->SetResponseData(lEntry);
 
         if (nullptr != mProcess)
         {
             Detach();
 
-            lResponse->AddConstEntry(N_RESULT, &RE_OK);
+            lEntry.Set(&RE_OK); lResponse->AddEntry(N_RESULT, lEntry);
         }
         else
         {
-            lResponse->AddConstEntry(N_ERROR, &E_INVALID_STATE);
-            lResponse->AddConstEntry(N_RESULT, &RE_ERROR);
+            lEntry.Set(&E_INVALID_STATE); lResponse->AddEntry(N_ERROR , lEntry);
+            lEntry.Set(&RE_ERROR       ); lResponse->AddEntry(N_RESULT, lEntry);
         }
         break;
 
@@ -242,6 +249,8 @@ unsigned int Tool::OnExit(void* aSender, void* aData)
 {
     assert(nullptr != aData);
 
+    Ptr_OF<DI::Object> lEntry;
+
     auto lTransaction = reinterpret_cast<HTTP::Transaction*>(aData);
 
     switch (lTransaction->GetType())
@@ -251,11 +260,11 @@ unsigned int Tool::OnExit(void* aSender, void* aData)
 
         lResponse = new DI::Dictionary;
 
-        lTransaction->SetResponseData(lResponse);
+        lEntry.Set(lResponse, true); lTransaction->SetResponseData(lEntry);
 
         Exit();
 
-        lResponse->AddConstEntry(N_RESULT, &RE_OK);
+        lEntry.Set(&RE_OK); lResponse->AddEntry(N_RESULT, lEntry);
         break;
 
     default: lTransaction->SetResult(HTTP::Result::METHOD_NOT_ALLOWED);
@@ -273,6 +282,8 @@ unsigned int Tool::OnGetExitCode(void* aSender, void* aData)
 {
     assert(nullptr != aData);
 
+    Ptr_OF<DI::Object> lEntry;
+
     auto lTransaction = reinterpret_cast<HTTP::Transaction*>(aData);
 
     switch (lTransaction->GetType())
@@ -282,31 +293,31 @@ unsigned int Tool::OnGetExitCode(void* aSender, void* aData)
 
         lResponse = new DI::Dictionary;
 
-        lTransaction->SetResponseData(lResponse);
+        lEntry.Set(lResponse, true); lTransaction->SetResponseData(lEntry);
 
         if (nullptr != mProcess)
         {
-            lResponse->AddConstEntry(N_RESULT, &RE_OK);
+            lEntry.Set(&RE_OK); lResponse->AddEntry(N_RESULT, lEntry);
 
             if (mProcess->IsRunning())
             {
-                lResponse->AddConstEntry(N_STATE, &S_RUNNING);
+                lEntry.Set(&S_RUNNING); lResponse->AddEntry(N_STATE, lEntry);
             }
             else
             {
                 auto lExitCode = mProcess->GetExitCode();
 
-                lResponse->AddEntry(N_EXIT_CODE, new DI::UInt<uint32_t>(lExitCode), true);
-                lResponse->AddConstEntry(N_STATE, &S_STOPPED);
+                lEntry.Set(new DI::UInt<uint32_t>(lExitCode), true); lResponse->AddEntry(N_EXIT_CODE, lEntry);
+                lEntry.Set(&S_STOPPED                             ); lResponse->AddEntry(N_STATE    , lEntry);
 
                 Process_Delete();
             }
         }
         else
         {
-            lResponse->AddConstEntry(N_ERROR, &E_INVALID_STATE);
-            lResponse->AddConstEntry(N_RESULT, &RE_ERROR);
-            lResponse->AddConstEntry(N_STATE, &S_INVALID);
+            lEntry.Set(&E_INVALID_STATE); lResponse->AddEntry(N_ERROR, lEntry);
+            lEntry.Set(&RE_ERROR       ); lResponse->AddEntry(N_RESULT,lEntry);
+            lEntry.Set(&S_INVALID      ); lResponse->AddEntry(N_STATE, lEntry);
         }
         break;
 
@@ -328,6 +339,8 @@ unsigned int Tool::OnLaunch(void* aSender, void* aData)
 {
     assert(nullptr != aData);
 
+    Ptr_OF<DI::Object> lEntry;
+
     auto lTransaction = reinterpret_cast<HTTP::Transaction*>(aData);
 
     switch (lTransaction->GetType())
@@ -340,7 +353,7 @@ unsigned int Tool::OnLaunch(void* aSender, void* aData)
         lLaunch = false;
         lResponse = new DI::Dictionary;
 
-        lTransaction->SetResponseData(lResponse);
+        lEntry.Set(lResponse, true); lTransaction->SetResponseData(lEntry);
 
         lRequest = dynamic_cast<const DI::Dictionary*>(lTransaction->GetRequestData());
         if (nullptr != lRequest)
@@ -389,7 +402,7 @@ unsigned int Tool::OnLaunch(void* aSender, void* aData)
                         Exit();
                     }
 
-                    lResponse->AddConstEntry(N_RESULT, &RE_OK);
+                    lEntry.Set(&RE_OK); lResponse->AddEntry(N_RESULT, lEntry);
                 }
             }
         }
@@ -398,8 +411,8 @@ unsigned int Tool::OnLaunch(void* aSender, void* aData)
         {
             Process_Delete();
 
-            lResponse->AddConstEntry(N_ERROR, &E_BAD_REQUEST);
-            lResponse->AddConstEntry(N_RESULT, &RE_ERROR);
+            lEntry.Set(&E_BAD_REQUEST); lResponse->AddEntry(N_ERROR , lEntry);
+            lEntry.Set(&RE_ERROR     ); lResponse->AddEntry(N_RESULT, lEntry);
         }
         break;
 
@@ -416,6 +429,8 @@ unsigned int Tool::OnTerminate(void* aSender, void* aData)
 {
     assert(nullptr != aData);
 
+    Ptr_OF<DI::Object> lEntry;
+
     auto lTransaction = reinterpret_cast<HTTP::Transaction*>(aData);
 
     switch (lTransaction->GetType())
@@ -425,7 +440,7 @@ unsigned int Tool::OnTerminate(void* aSender, void* aData)
 
         lResponse = new DI::Dictionary();
 
-        lTransaction->SetResponseData(lResponse);
+        lEntry.Set(lResponse, true); lTransaction->SetResponseData(lEntry);
 
         if (nullptr != mProcess)
         {
@@ -433,12 +448,12 @@ unsigned int Tool::OnTerminate(void* aSender, void* aData)
 
             Process_Delete();
 
-            lResponse->AddConstEntry(N_RESULT, &RE_OK);
+            lEntry.Set(&RE_OK); lResponse->AddEntry(N_RESULT, lEntry);
         }
         else
         {
-            lResponse->AddConstEntry(N_ERROR, &E_INVALID_STATE);
-            lResponse->AddConstEntry(N_RESULT, &RE_ERROR);
+            lEntry.Set(&E_INVALID_STATE); lResponse->AddEntry(N_ERROR , lEntry);
+            lEntry.Set(&RE_ERROR       ); lResponse->AddEntry(N_RESULT, lEntry);
         }
         break;
 

@@ -153,10 +153,12 @@ Tool::Tool() : mMaster(nullptr)
     mHoldingRegisters.SetCreator(DI::UInt<uint16_t>::Create);
     mInputRegisters  .SetCreator(DI::UInt<uint16_t>::Create);
 
-    AddEntry("Coils"           , &mCoils           , false, &MD_COILS);
-    AddEntry("DiscreteInputs"  , &mDiscreteInputs  , false, &MD_DISCRETE_INPUTS);
-    AddEntry("HoldingRegisters", &mHoldingRegisters, false, &MD_HOLDING_REGISTERS);
-    AddEntry("InputRegisters"  , &mInputRegisters  , false, &MD_INPUT_REGISTERS);
+    Ptr_OF<DI::Object> lEntry;
+
+    lEntry.Set(&mCoils           , false); AddEntry("Coils"           , lEntry, &MD_COILS);
+    lEntry.Set(&mDiscreteInputs  , false); AddEntry("DiscreteInputs"  , lEntry, &MD_DISCRETE_INPUTS);
+    lEntry.Set(&mHoldingRegisters, false); AddEntry("HoldingRegisters", lEntry, &MD_HOLDING_REGISTERS);
+    lEntry.Set(&mInputRegisters  , false); AddEntry("InputRegisters"  , lEntry, &MD_INPUT_REGISTERS);
 
     AddModule(&mScope);
 }
