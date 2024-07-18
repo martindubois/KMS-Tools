@@ -15,6 +15,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Launcher", "Launcher\Launch
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PGeo", "PGeo\PGeo.vcxproj", "{D5668113-55BA-4153-B111-98C6BDF802E4}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LabCtrl", "LabCtrl\LabCtrl.vcxproj", "{F87BE769-8ED5-42ED-A720-2699021E1FFA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -97,6 +99,18 @@ Global
 		{D5668113-55BA-4153-B111-98C6BDF802E4}.Release|x64.Build.0 = Release|x64
 		{D5668113-55BA-4153-B111-98C6BDF802E4}.Release|x86.ActiveCfg = Release|Win32
 		{D5668113-55BA-4153-B111-98C6BDF802E4}.Release|x86.Build.0 = Release|Win32
+		{F87BE769-8ED5-42ED-A720-2699021E1FFA}.Debug|x64.ActiveCfg = Debug|x64
+		{F87BE769-8ED5-42ED-A720-2699021E1FFA}.Debug|x64.Build.0 = Debug|x64
+		{F87BE769-8ED5-42ED-A720-2699021E1FFA}.Debug|x86.ActiveCfg = Debug|Win32
+		{F87BE769-8ED5-42ED-A720-2699021E1FFA}.Debug|x86.Build.0 = Debug|Win32
+		{F87BE769-8ED5-42ED-A720-2699021E1FFA}.Release_Static|x64.ActiveCfg = Release|x64
+		{F87BE769-8ED5-42ED-A720-2699021E1FFA}.Release_Static|x64.Build.0 = Release|x64
+		{F87BE769-8ED5-42ED-A720-2699021E1FFA}.Release_Static|x86.ActiveCfg = Release|Win32
+		{F87BE769-8ED5-42ED-A720-2699021E1FFA}.Release_Static|x86.Build.0 = Release|Win32
+		{F87BE769-8ED5-42ED-A720-2699021E1FFA}.Release|x64.ActiveCfg = Release|x64
+		{F87BE769-8ED5-42ED-A720-2699021E1FFA}.Release|x64.Build.0 = Release|x64
+		{F87BE769-8ED5-42ED-A720-2699021E1FFA}.Release|x86.ActiveCfg = Release|Win32
+		{F87BE769-8ED5-42ED-A720-2699021E1FFA}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

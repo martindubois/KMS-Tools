@@ -1,0 +1,126 @@
+
+# Author    KMS - Martin Dubois, P. Eng.
+# Copyright (C) 2024 KMS
+# License   http://www.apache.org/licenses/LICENSE-2.0
+# Product   KMS-Tools
+# File      LabCtrl/Tests/NoInstrument.txt
+
+Echo 1. Instrument
+
+Instrument
+ClearError
+
+Instrument Info
+ClearError
+
+Instrument List
+AbortIfError
+
+Instrument Select
+ClearError
+
+Instrument Select DoesNotExist
+ClearError
+
+Echo 2. SCPI
+
+SCPI
+ClearError
+
+# SCPI Name
+
+SCPI Name COM
+ClearError
+
+SCPI Name TCP RemoteAddress=158.69.110.104:80
+ClearError
+
+Echo 3. AnalogInput
+
+AnalogInput Display
+ClearError
+
+AnalogInput List
+AbortIfError
+
+AnalogInput Select
+ClearError
+
+AnalogInput Select DoesNotExist
+ClearError
+
+Echo 4. AnalogOutput
+
+AnalogOutput
+ClearError
+
+AnalogOutput Display
+ClearError
+
+AnalogOutput List
+AbortIfError
+
+AnalogOutput Select
+ClearError
+
+AnalogOutput Select DoesNotExist
+ClearError
+
+AnalogOutput Write
+ClearError
+
+AnalogOutput Write 0
+ClearError
+
+Echo 5. DigitalInput
+
+DigitalInput
+ClearError
+
+DigitalInput Display
+ClearError
+
+DigitalInput List
+# TODO AbortIfError
+ClearError
+
+DigitalInput Select
+ClearError
+
+DigitalInput Select DoesNotExist
+ClearError
+
+Echo 6. DigitalOutput
+
+DigitalOutput
+ClearError
+
+DigitalOutput Display
+ClearError
+
+DigitalOutput List
+# TODO AbortIfError
+ClearError
+
+DigitalOutput Select
+ClearError
+
+DigitalOutput Select DoesNotExist
+ClearError
+
+DigitalOutput Set
+ClearError
+
+DigitalOutput Set false
+ClearError
+
+DigitalOutput Set true
+ClearError
+
+Echo 7. Help
+
+Help
+AbortIfError
+
+Echo Test PASSED
+Exit 0

@@ -7,6 +7,8 @@ File      _DocUser/KMS-Tools.ReadMe.txt
 
 EDIT ON BUILD
 
+* LabCtrl
+
 0.0.1-dev 2024-01-31
 * ComTool
 * Launcher

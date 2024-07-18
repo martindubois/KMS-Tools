@@ -1,0 +1,182 @@
+
+# Author    KMS - Martin Dubois, P. Eng.
+# Copyright (C) 2024 KMS
+# License   http://www.apache.org/licenses/LICENSE-2.0
+# Product   KMS-Tools
+# File      LabCtrl/Tests/SPD3303X.txt
+
+SCPI PS TCP
+AbortIfError
+
+Echo 1. Instrument
+
+Instrument Info
+AbortIfError
+
+Instrument List
+AbortIfError
+
+Instrument Select PS
+AbortIfError
+
+Echo 2. SCPI
+
+Echo 3. AnalogInput
+
+AnalogInput List
+AbortIfError
+
+AnalogInput Select PS.Ch1.I
+AbortIfError
+
+AnalogInput Display
+AbortIfError
+
+Echo 4. AnalogOutput
+
+AnalogOutput List
+AbortIfError
+
+AnalogOutput Select PS.Ch1.I
+AbortIfError
+
+AnalogOutput Display
+AbortIfError
+
+AnalogOutput Write 1
+AbortIfError
+
+AnalogOutput Write -1
+ClearError
+
+AnalogOutput Write 4
+ClearError
+
+AnalogOutput Select PS.Ch1.V
+AbortIfError
+
+AnalogOutput Display
+AbortIfError
+
+AnalogOutput Write 1
+AbortIfError
+
+AnalogOutput Write -1
+ClearError
+
+AnalogOutput Write 33
+ClearError
+
+AnalogOutput Select PS.Ch2.I
+AbortIfError
+
+AnalogOutput Display
+AbortIfError
+
+AnalogOutput Write 1
+AbortIfError
+
+AnalogOutput Write -1
+ClearError
+
+AnalogOutput Write 4
+ClearError
+
+AnalogOutput Select PS.Ch2.V
+AbortIfError
+
+AnalogOutput Display
+AbortIfError
+
+AnalogOutput Write 1
+AbortIfError
+
+AnalogOutput Write -1
+ClearError
+
+AnalogOutput Write 33
+ClearError
+
+AnalogOutput Select PS.Mode
+AbortIfError
+
+AnalogOutput Write 3
+ClearError
+
+AnalogOutput Write 2
+AbortIfError
+
+AnalogOutput Write 1
+AbortIfError
+
+AnalogOutput Write 0
+AbortIfError
+
+Echo 5. DigitalInput
+
+DigitalInput List
+# TODO AbortIfError
+ClearError
+
+DigitalInput Select PS.Ch1.CC
+# TODO AbortIfError
+ClearError
+
+DigitalInput Display
+# TODO AbortIfError
+ClearError
+
+Echo 6. DigitalOutput
+
+DigitalOutput List
+# TODO AbortIfError
+ClearError
+
+DigitalOutput Select PS.Ch1.Display
+# TODO AbortIfError
+ClearError
+
+DigitalOutput Display
+# TODO AbortIfError
+ClearError
+
+DigitalOutput Set false
+# TODO AbortIfError
+ClearError
+
+DigitalOutput Select PS.Ch1.Enable
+# TODO AbortIfError
+ClearError
+
+DigitalOutput Set false
+# TODO AbortIfError
+ClearError
+
+DigitalOutput Select PS.Ch2.Display
+# TODO AbortIfError
+ClearError
+
+DigitalOutput Set false
+# TODO AbortIfError
+ClearError
+
+DigitalOutput Select PS.Ch2.Enable
+# TODO AbortIfError
+ClearError
+
+DigitalOutput Set false
+# TODO AbortIfError
+ClearError
+
+DigitalOutput Select PS.Ch3.Enable
+# TODO AbortIfError
+ClearError
+
+DigitalOutput Set false
+# TODO AbortIfError
+ClearError
+
+Echo 7. Help
+
+Echo Test PASSED
+Exit 0
