@@ -78,12 +78,25 @@ public:
 
     // ===== CLI::Tool ==============================================
     virtual void DisplayHelp(FILE* aOut) const;
-    virtual int  ExecuteCommand(const char* aC);
+    virtual int  ExecuteCommand(CLI::CommandLine* aCmd);
     virtual int  Run();
 
 private:
 
     NO_COPY(Tool);
+
+    int Cmd_Dump                 (CLI::CommandLine* aCmd);
+    int Cmd_ReadCoil             (CLI::CommandLine* aCmd);
+    int Cmd_ReadDiscreteInput    (CLI::CommandLine* aCmd);
+    int Cmd_ReadHoldingRegister  (CLI::CommandLine* aCmd);
+    int Cmd_ReadInputRegister    (CLI::CommandLine* aCmd);
+    int Cmd_Scope                (CLI::CommandLine* aCmd);
+    int Cmd_Scope_Coil           (CLI::CommandLine* aCmd);
+    int Cmd_Scope_DiscreteInput  (CLI::CommandLine* aCmd);
+    int Cmd_Scope_HoldingRegister(CLI::CommandLine* aCmd);
+    int Cmd_Scope_InputRegister  (CLI::CommandLine* aCmd);
+    int Cmd_WriteSingleCoil      (CLI::CommandLine* aCmd);
+    int Cmd_WriteSingleRegister  (CLI::CommandLine* aCmd);
 
     void Scope_Channel(Scope::Channel_Modbus* aChannel, const char* aAddrOrName, const DI::Dictionary& aMap);
 
@@ -117,12 +130,14 @@ int main(int aCount, const char** aVector)
 
     KMS_MAIN_BEGIN;
     {
-        Modbus::LinkAndMaster_Cfg lLAMC(&lConfigurator, Modbus::LinkAndMaster_Cfg::Link::COM);
+        Modbus::LinkAndMaster_Cfg lLAMC(&lConfigurator, Stream::StreamType::COM);
         Tool                      lT;
 
         lConfigurator.AddConfigurable(&lT);
 
-        auto lArgStart = lLAMC.ParseArguments(aCount, aVector);
+        CLI::CommandLine lCmd(aCount, aVector);
+
+        lLAMC.ParseArguments(&lCmd);
 
         lT.InitMaster(lLAMC.GetMaster());
 
@@ -130,7 +145,7 @@ int main(int aCount, const char** aVector)
         lConfigurator.ParseFile(File::Folder::HOME, CONFIG_FILE);
         lConfigurator.ParseFile(File::Folder::CURRENT, CONFIG_FILE);
 
-        lConfigurator.ParseArguments(aCount - lArgStart, aVector + lArgStart);
+        lConfigurator.ParseArguments(&lCmd);
 
         KMS_MAIN_VALIDATE;
 
@@ -337,63 +352,28 @@ void Tool::DisplayHelp(FILE* aOut) const
     CLI::Tool::DisplayHelp(aOut);
 }
 
-int Tool::ExecuteCommand(const char* aC)
+int Tool::ExecuteCommand(CLI::CommandLine* aCmd)
 {
-    char lA[NAME_LENGTH];
-    char lB[NAME_LENGTH];
-    char lC[NAME_LENGTH];
-    char lD[NAME_LENGTH];
+    assert(nullptr != aCmd);
 
-    switch (sscanf_s(aC, "%[^ \n\r\t] %[^ \n\r\t] %[^ \n\r\t] %[^ \n\r\t]", lA SizeInfo(lA), lB SizeInfo(lB), lC SizeInfo(lC), lD SizeInfo(lD)))
+    int lResult = __LINE__;
+
+    auto lCmd = aCmd->GetCurrent();
+
+    if      (0 == _stricmp(lCmd, "Dump"               )) { aCmd->Next(); lResult = Cmd_Dump               (aCmd); }
+    else if (0 == _stricmp(lCmd, "ReadCoil"           )) { aCmd->Next(); lResult = Cmd_ReadCoil           (aCmd); }
+    else if (0 == _stricmp(lCmd, "ReadDiscreteInput"  )) { aCmd->Next(); lResult = Cmd_ReadDiscreteInput  (aCmd); }
+    else if (0 == _stricmp(lCmd, "ReadHoldingRegister")) { aCmd->Next(); lResult = Cmd_ReadHoldingRegister(aCmd); }
+    else if (0 == _stricmp(lCmd, "ReadInputRegister"  )) { aCmd->Next(); lResult = Cmd_ReadInputRegister  (aCmd); }
+    else if (0 == _stricmp(lCmd, "Scope"              )) { aCmd->Next(); lResult = Cmd_Scope              (aCmd); }
+    else if (0 == _stricmp(lCmd, "WriteSingleCoil"    )) { aCmd->Next(); lResult = Cmd_WriteSingleCoil    (aCmd); }
+    else if (0 == _stricmp(lCmd, "WriteSingleRegister")) { aCmd->Next(); lResult = Cmd_WriteSingleRegister(aCmd); }
+    else
     {
-    case 1:
-        if (0 == strcmp("Dump", lA)) { Dump(stdout); return 0; }
-        break;
-
-    case 2:
-        if (0 == strcmp("ReadCoil", lA))
-        {
-            bool lRet = ReadCoil(lB);
-            std::cout << lRet << std::endl;
-            return 0;
-        }
-        if (0 == strcmp("ReadDiscreteInput", lA))
-        {
-            bool lRet = ReadDiscreteInput(lB);
-            std::cout << lRet << std::endl;
-            return 0;
-        }
-        if (0 == strcmp("ReadHoldingRegister", lA))
-        {
-            uint16_t lRet = ReadHoldingRegister(lB);
-            std::cout << lRet << std::endl;
-            return 0;
-        }
-        if (0 == strcmp("ReadInputRegister", lA))
-        {
-            uint16_t lRet = ReadInputRegister(lB);
-            std::cout << lRet << std::endl;
-            return 0;
-        }
-        break;
-
-    case 3:
-        if (0 == strcmp("WriteSingleCoil"    , lA)) { WriteSingleCoil    (lB, Convert::ToBool  (lC)); return 0; }
-        if (0 == strcmp("WriteSingleRegister", lA)) { WriteSingleRegister(lB, Convert::ToUInt16(lC)); return 0; }
-        break;
-
-    case 4:
-        if ((0 == strcmp("Scope", lA)) && (0 == strcmp("Channel", lB)))
-        {
-            if (0 == strcmp("Coil"           , lC)) { Scope_Channel(new Scope::Channel_Modbus_Coil           (), lD, mCoils           ); return 0; }
-            if (0 == strcmp("DiscreteInput"  , lC)) { Scope_Channel(new Scope::Channel_Modbus_DiscreteInput  (), lD, mDiscreteInputs  ); return 0; }
-            if (0 == strcmp("HoldingRegister", lC)) { Scope_Channel(new Scope::Channel_Modbus_HoldingRegister(), lD, mHoldingRegisters); return 0; }
-            if (0 == strcmp("InputRegister"  , lC)) { Scope_Channel(new Scope::Channel_Modbus_InputRegister  (), lD, mInputRegisters  ); return 0; }
-        }
-        break;
+        lResult = CLI::Tool::ExecuteCommand(aCmd);
     }
 
-    return CLI::Tool::ExecuteCommand(aC);
+    return lResult;
 }
 
 int Tool::Run()
@@ -409,6 +389,178 @@ int Tool::Run()
 
 // Private
 // //////////////////////////////////////////////////////////////////////////
+
+int Tool::Cmd_Dump(CLI::CommandLine* aCmd)
+{
+    assert(nullptr != aCmd);
+
+    KMS_EXCEPTION_ASSERT(aCmd->IsAtEnd(), RESULT_INVALID_COMMAND, "Too many command arguments", aCmd->GetCurrent());
+
+    Dump(stdout);
+
+    return 0;
+}
+
+int Tool::Cmd_ReadCoil(CLI::CommandLine* aCmd)
+{
+    assert(nullptr != aCmd);
+
+    auto lName = aCmd->GetCurrent(); aCmd->Next();
+
+    KMS_EXCEPTION_ASSERT(aCmd->IsAtEnd(), RESULT_INVALID_COMMAND, "Too many command arguments", aCmd->GetCurrent());
+
+    auto lRet = ReadCoil(lName);
+
+    std::cout << lRet << std::endl;
+
+    return 0;
+}
+
+int Tool::Cmd_ReadDiscreteInput(CLI::CommandLine* aCmd)
+{
+    assert(nullptr != aCmd);
+
+    auto lName = aCmd->GetCurrent(); aCmd->Next();
+
+    KMS_EXCEPTION_ASSERT(aCmd->IsAtEnd(), RESULT_INVALID_COMMAND, "Too many command arguments", aCmd->GetCurrent());
+
+    auto lRet = ReadDiscreteInput(lName);
+
+    std::cout << lRet << std::endl;
+
+    return 0;
+}
+
+int Tool::Cmd_ReadHoldingRegister(CLI::CommandLine* aCmd)
+{
+    assert(nullptr != aCmd);
+
+    auto lName = aCmd->GetCurrent(); aCmd->Next();
+
+    KMS_EXCEPTION_ASSERT(aCmd->IsAtEnd(), RESULT_INVALID_COMMAND, "Too many command arguments", aCmd->GetCurrent());
+
+    auto lRet = ReadHoldingRegister(lName);
+
+    std::cout << lRet << std::endl;
+
+    return 0;
+}
+
+int Tool::Cmd_ReadInputRegister(CLI::CommandLine* aCmd)
+{
+    assert(nullptr != aCmd);
+
+    auto lName = aCmd->GetCurrent(); aCmd->Next();
+
+    KMS_EXCEPTION_ASSERT(aCmd->IsAtEnd(), RESULT_INVALID_COMMAND, "Too many command arguments", aCmd->GetCurrent());
+
+    auto lRet = ReadInputRegister(lName);
+
+    std::cout << lRet << std::endl;
+
+    return 0;
+}
+
+int Tool::Cmd_Scope(CLI::CommandLine* aCmd)
+{
+    assert(nullptr != aCmd);
+
+    int lResult = __LINE__;
+
+    auto lCmd = aCmd->GetCurrent();
+
+    if      (0 == _stricmp(lCmd, "Coil"           )) { aCmd->Next(); lResult = Cmd_Scope_Coil           (aCmd); }
+    else if (0 == _stricmp(lCmd, "DiscreteInput"  )) { aCmd->Next(); lResult = Cmd_Scope_DiscreteInput  (aCmd); }
+    else if (0 == _stricmp(lCmd, "HoldingRegister")) { aCmd->Next(); lResult = Cmd_Scope_HoldingRegister(aCmd); }
+    else if (0 == _stricmp(lCmd, "InputRegister"  )) { aCmd->Next(); lResult = Cmd_Scope_InputRegister  (aCmd); }
+    {
+        aCmd->Reset();
+
+        lResult = CLI::Tool::ExecuteCommand(aCmd);
+    }
+
+    return lResult;
+}
+
+int Tool::Cmd_Scope_Coil(CLI::CommandLine* aCmd)
+{
+    assert(nullptr != aCmd);
+
+    auto lName = aCmd->GetCurrent(); aCmd->Next();
+
+    KMS_EXCEPTION_ASSERT(aCmd->IsAtEnd(), RESULT_INVALID_COMMAND, "Too many command arguments", aCmd->GetCurrent());
+
+    Scope_Channel(new Scope::Channel_Modbus_Coil(), lName, mCoils);
+    
+    return 0;
+}
+
+int Tool::Cmd_Scope_DiscreteInput(CLI::CommandLine* aCmd)
+{
+    assert(nullptr != aCmd);
+
+    auto lName = aCmd->GetCurrent(); aCmd->Next();
+
+    KMS_EXCEPTION_ASSERT(aCmd->IsAtEnd(), RESULT_INVALID_COMMAND, "Too many command arguments", aCmd->GetCurrent());
+
+    Scope_Channel(new Scope::Channel_Modbus_DiscreteInput(), lName, mDiscreteInputs);
+    
+    return 0;
+}
+
+int Tool::Cmd_Scope_HoldingRegister(CLI::CommandLine* aCmd)
+{
+    assert(nullptr != aCmd);
+
+    auto lName = aCmd->GetCurrent(); aCmd->Next();
+
+    KMS_EXCEPTION_ASSERT(aCmd->IsAtEnd(), RESULT_INVALID_COMMAND, "Too many command arguments", aCmd->GetCurrent());
+
+    Scope_Channel(new Scope::Channel_Modbus_HoldingRegister(), lName, mHoldingRegisters);
+    
+    return 0;
+}
+
+int Tool::Cmd_Scope_InputRegister(CLI::CommandLine* aCmd)
+{
+    assert(nullptr != aCmd);
+
+    auto lName = aCmd->GetCurrent(); aCmd->Next();
+
+    KMS_EXCEPTION_ASSERT(aCmd->IsAtEnd(), RESULT_INVALID_COMMAND, "Too many command arguments", aCmd->GetCurrent());
+
+    Scope_Channel(new Scope::Channel_Modbus_InputRegister(), lName, mInputRegisters);
+    
+    return 0;
+}
+
+int Tool::Cmd_WriteSingleCoil(CLI::CommandLine* aCmd)
+{
+    assert(nullptr != aCmd);
+
+    auto lName  =                 aCmd->GetCurrent() ; aCmd->Next();
+    auto lValue = Convert::ToBool(aCmd->GetCurrent()); aCmd->Next();
+
+    KMS_EXCEPTION_ASSERT(aCmd->IsAtEnd(), RESULT_INVALID_COMMAND, "Too many command arguments", aCmd->GetCurrent());
+
+    WriteSingleCoil(lName, lValue);
+    
+    return 0;
+}
+
+int Tool::Cmd_WriteSingleRegister(CLI::CommandLine* aCmd)
+{
+    assert(nullptr != aCmd);
+
+    auto lName  =                   aCmd->GetCurrent() ; aCmd->Next();
+    auto lValue = Convert::ToUInt16(aCmd->GetCurrent()); aCmd->Next();
+
+    KMS_EXCEPTION_ASSERT(aCmd->IsAtEnd(), RESULT_INVALID_COMMAND, "Too many command arguments", aCmd->GetCurrent());
+
+    WriteSingleRegister(lName, lValue);
+    
+    return 0;
+}
 
 void Tool::Scope_Channel(Scope::Channel_Modbus* aChannel, const char* aAddrOrName, const DI::Dictionary& aMap)
 {

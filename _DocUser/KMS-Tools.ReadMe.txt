@@ -1,12 +1,13 @@
 
 Author    KMS - Martin Dubois, P. Eng.
-Copyright (C) 2023-2024 KMS
+Copyright (C) 2024 KMS
 License   http://www.apache.org/licenses/LICENSE-2.0
 Product   KMS-Tools
 File      _DocUser/KMS-Tools.ReadMe.txt
 
 EDIT ON BUILD
 
+0.0.2-dev 2024-07-19
 * LabCtrl
 
 0.0.1-dev 2024-01-31

@@ -40,9 +40,16 @@ public:
 
     // ===== CLI::Tool ==============================================
     virtual void DisplayHelp(FILE* aOut) const;
-    virtual int  ExecuteCommand(const char* aC);
+    virtual int  ExecuteCommand(CLI::CommandLine* aCmd);
 
 private:
+
+    int Cmd_Connect    (CLI::CommandLine* aCmd);
+    int Cmd_Disconnect (CLI::CommandLine* aCmd);
+    int Cmd_Dump       (CLI::CommandLine* aCmd);
+    int Cmd_SendRequest(CLI::CommandLine* aCmd);
+    int Cmd_Start      (CLI::CommandLine* aCmd);
+    int Cmd_Stop       (CLI::CommandLine* aCmd);
 
     void Dump();
     void Dump(unsigned int aInstance);
@@ -99,6 +106,8 @@ Tool::Tool()
     Ptr_OF<DI::Object> lEntry;
 
     lEntry.Set(&mPort, false); AddEntry("Port", lEntry);
+
+    mPort.SetConnectFlags(Dev::Device::FLAG_ACCESS_READ | Dev::Device::FLAG_ACCESS_WRITE);
 }
 
 // ===== CLI::Tool ==========================================================
@@ -118,30 +127,23 @@ void Tool::DisplayHelp(FILE* aOut) const
     CLI::Tool::DisplayHelp(aOut);
 }
 
-int Tool::ExecuteCommand(const char* aC)
+int Tool::ExecuteCommand(CLI::CommandLine* aCmd)
 {
-    assert(nullptr != aC);
+    assert(nullptr != aCmd);
 
-    unsigned int lInstance;
-    unsigned int lMask;
-    int          lResult = 0;
+    int lResult = __LINE__;
 
-    if (0 == strcmp(aC, "Connect"))
-    {
-        if (!mPort.Connect(Dev::Device::FLAG_ACCESS_READ | Dev::Device::FLAG_ACCESS_WRITE))
-        {
-            KMS_EXCEPTION(RESULT_CONNECT_FAILED, "Connexion failed", "");
-        }
-    }
-    else if (0 == strcmp(aC, "Disconnect")) { mPort.Disconnect(); }
-    else if (0 == strcmp(aC, "Dump"      )) { Dump(); }
-    else if (0 == strcmp(aC, "Start"     )) { mLink.Start(); }
-    else if (0 == strcmp(aC, "Stop"      )) { mLink.Stop(); }
-    else if (1 == sscanf_s(aC, "Dump %u", &lInstance)) { Dump(lInstance); }
-    else if (2 == sscanf_s(aC, "SendRequest %u %x", &lInstance, &lMask)) { SendRequest(lInstance, lMask); }
+    auto lCmd = aCmd->GetCurrent();
+
+    if      (0 == _stricmp(lCmd, "Connect"    )) { aCmd->Next(); lResult = Cmd_Connect    (aCmd); }
+    else if (0 == _stricmp(lCmd, "Disconnect" )) { aCmd->Next(); lResult = Cmd_Disconnect (aCmd); }
+    else if (0 == _stricmp(lCmd, "Dump"       )) { aCmd->Next(); lResult = Cmd_Dump       (aCmd); }
+    else if (0 == _stricmp(lCmd, "SendRequest")) { aCmd->Next(); lResult = Cmd_SendRequest(aCmd); }
+    else if (0 == _stricmp(lCmd, "Start"      )) { aCmd->Next(); lResult = Cmd_Start      (aCmd); }
+    else if (0 == _stricmp(lCmd, "Stop"       )) { aCmd->Next(); lResult = Cmd_Stop       (aCmd); }
     else
     {
-        lResult = CLI::Tool::ExecuteCommand(aC);
+        lResult = CLI::Tool::ExecuteCommand(aCmd);
     }
 
     return lResult;
@@ -149,6 +151,87 @@ int Tool::ExecuteCommand(const char* aC)
 
 // Private
 // //////////////////////////////////////////////////////////////////////////
+
+int Tool::Cmd_Connect(CLI::CommandLine* aCmd)
+{
+    assert(nullptr != aCmd);
+
+    KMS_EXCEPTION_ASSERT(aCmd->IsAtEnd(), RESULT_INVALID_COMMAND, "Too many command arguments", aCmd->GetCurrent());
+
+    if (!mPort.Connect())
+    {
+        KMS_EXCEPTION(RESULT_CONNECT_FAILED, "Connexion failed", "");
+    }
+
+    return 0;
+}
+
+int Tool::Cmd_Disconnect(CLI::CommandLine* aCmd)
+{
+    assert(nullptr != aCmd);
+
+    KMS_EXCEPTION_ASSERT(aCmd->IsAtEnd(), RESULT_INVALID_COMMAND, "Too many command arguments", aCmd->GetCurrent());
+
+    mPort.Disconnect();
+
+    return 0;
+}
+
+int Tool::Cmd_Dump(CLI::CommandLine* aCmd)
+{
+    assert(nullptr != aCmd);
+
+    if (aCmd->IsAtEnd())
+    {
+        Dump();
+    }
+    else
+    {
+        auto lInstance = Convert::ToUInt32(aCmd->GetCurrent()); aCmd->Next();
+
+        KMS_EXCEPTION_ASSERT(aCmd->IsAtEnd(), RESULT_INVALID_COMMAND, "Too many command arguments", aCmd->GetCurrent());
+
+        Dump(lInstance);
+    }
+
+    return 0;
+}
+
+int Tool::Cmd_SendRequest(CLI::CommandLine* aCmd)
+{
+    assert(nullptr != aCmd);
+
+    auto lInstance = Convert::ToUInt32(aCmd->GetCurrent()                         ); aCmd->Next();
+    auto lMask     = Convert::ToUInt32(aCmd->GetCurrent(), KMS::Radix::HEXADECIMAL); aCmd->Next();
+
+    KMS_EXCEPTION_ASSERT(aCmd->IsAtEnd(), RESULT_INVALID_COMMAND, "Too many command arguments", aCmd->GetCurrent());
+
+    SendRequest(lInstance, lMask);
+
+    return 0;
+}
+
+int Tool::Cmd_Start(CLI::CommandLine* aCmd)
+{
+    assert(nullptr != aCmd);
+
+    KMS_EXCEPTION_ASSERT(aCmd->IsAtEnd(), RESULT_INVALID_COMMAND, "Too many command arguments", aCmd->GetCurrent());
+
+    mLink.Start();
+
+    return 0;
+}
+
+int Tool::Cmd_Stop(CLI::CommandLine* aCmd)
+{
+    assert(nullptr != aCmd);
+
+    KMS_EXCEPTION_ASSERT(aCmd->IsAtEnd(), RESULT_INVALID_COMMAND, "Too many command arguments", aCmd->GetCurrent());
+
+    mLink.Stop();
+
+    return 0;
+}
 
 void Tool::Dump()
 {

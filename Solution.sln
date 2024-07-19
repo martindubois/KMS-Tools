@@ -103,10 +103,10 @@ Global
 		{F87BE769-8ED5-42ED-A720-2699021E1FFA}.Debug|x64.Build.0 = Debug|x64
 		{F87BE769-8ED5-42ED-A720-2699021E1FFA}.Debug|x86.ActiveCfg = Debug|Win32
 		{F87BE769-8ED5-42ED-A720-2699021E1FFA}.Debug|x86.Build.0 = Debug|Win32
-		{F87BE769-8ED5-42ED-A720-2699021E1FFA}.Release_Static|x64.ActiveCfg = Release|x64
-		{F87BE769-8ED5-42ED-A720-2699021E1FFA}.Release_Static|x64.Build.0 = Release|x64
-		{F87BE769-8ED5-42ED-A720-2699021E1FFA}.Release_Static|x86.ActiveCfg = Release|Win32
-		{F87BE769-8ED5-42ED-A720-2699021E1FFA}.Release_Static|x86.Build.0 = Release|Win32
+		{F87BE769-8ED5-42ED-A720-2699021E1FFA}.Release_Static|x64.ActiveCfg = Release_Static|x64
+		{F87BE769-8ED5-42ED-A720-2699021E1FFA}.Release_Static|x64.Build.0 = Release_Static|x64
+		{F87BE769-8ED5-42ED-A720-2699021E1FFA}.Release_Static|x86.ActiveCfg = Release_Static|Win32
+		{F87BE769-8ED5-42ED-A720-2699021E1FFA}.Release_Static|x86.Build.0 = Release_Static|Win32
 		{F87BE769-8ED5-42ED-A720-2699021E1FFA}.Release|x64.ActiveCfg = Release|x64
 		{F87BE769-8ED5-42ED-A720-2699021E1FFA}.Release|x64.Build.0 = Release|x64
 		{F87BE769-8ED5-42ED-A720-2699021E1FFA}.Release|x86.ActiveCfg = Release|Win32

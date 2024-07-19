@@ -1,6 +1,6 @@
 
 // Author    KMS - Martin Dubois, P. Eng.
-// Copyright (C) 2023 KMS
+// Copyright (C) 2023-2024 KMS
 // License   http://www.apache.org/licenses/LICENSE-2.0
 // Product   KMS-Tools
 // File      ComTool/ComTool.cpp
@@ -10,6 +10,7 @@
 // ===== Includes ===========================================================
 #include <KMS/Banner.h>
 #include <KMS/Cfg/MetaData.h>
+#include <KMS/CLI/CommandLine.h>
 #include <KMS/CLI/Tool.h>
 #include <KMS/Com/Port.h>
 #include <KMS/Main.h>
@@ -59,7 +60,7 @@ public:
 
     // ===== CLI::Tool ==============================================
     virtual void DisplayHelp(FILE* aOut) const;
-    virtual int  ExecuteCommand(const char* aC);
+    virtual int  ExecuteCommand(CLI::CommandLine* aCmd);
     virtual int  Run();
 
 private:
@@ -67,6 +68,21 @@ private:
     NO_COPY(Tool);
 
     Com::Port mPort;
+
+    int Cmd_ClearDTR              (CLI::CommandLine* aCmd);
+    int Cmd_ClearRTS              (CLI::CommandLine* aCmd);
+    int Cmd_Connect               (CLI::CommandLine* aCmd);
+    int Cmd_Disconnect            (CLI::CommandLine* aCmd);
+    int Cmd_Receive               (CLI::CommandLine* aCmd);
+    int Cmd_ReceiveAndVerify      (CLI::CommandLine* aCmd);
+    int Cmd_ReceiveAndVerify_ASCII(CLI::CommandLine* aCmd);
+    int Cmd_ReceiveAndVerify_Hex  (CLI::CommandLine* aCmd);
+    int Cmd_Send                  (CLI::CommandLine* aCmd);
+    int Cmd_Send_ASCII            (CLI::CommandLine* aCmd);
+    int Cmd_Send_Hex              (CLI::CommandLine* aCmd);
+    int Cmd_SetDTR                (CLI::CommandLine* aCmd);
+    int Cmd_SetRTS                (CLI::CommandLine* aCmd);
+    int Cmd_Status                (CLI::CommandLine* aCmd);
 
     void DisplayDumpWrite(const void* aIn, unsigned int aInSize_byte, unsigned int aFlags, const char* aOp);
 
@@ -141,6 +157,8 @@ Tool::Tool() : mDataFile(nullptr, DATA_FILE_DEFAULT)
     lEntry.Set(&mDataFile, false); AddEntry("DataFile", lEntry, &MD_DATA_FILE);
 
     lEntry.Set(&mPort, false); AddEntry("Port", lEntry);
+
+    mPort.SetConnectFlags(Dev::Device::FLAG_ACCESS_READ | Dev::Device::FLAG_ACCESS_WRITE);
 }
 
 void Tool::Receive(unsigned int aSize_byte, unsigned int aFlags)
@@ -261,62 +279,38 @@ void Tool::DisplayHelp(FILE* aFile) const
         "Connect\n"
         "Disconnect\n"
         "Receive [Flags] [Size_byte]\n"
-        "ReceiveAndVerify {Flags} {Expected}\n"
-        "ReceiveAndVerify_Hex {Flags} {Expected}\n"
-        "Send {Flags} {Data}\n"
-        "Send_Hex {Flags} {Data}\n"
+        "ReceiveAndVerify ASCII {Flags} {Expected}\n"
+        "ReceiveAndVerify Hex {Flags} {Expected}\n"
+        "Send ASCII {Flags} {Data}\n"
+        "Send Hex {Flags} {Data}\n"
         "SetDTR\n"
         "SetRTS\n"
-        "StartReceive [Flags]\n"
         "Status\n");
 
     CLI::Tool::DisplayHelp(aFile);
 }
 
-int Tool::ExecuteCommand(const char* aC)
+int Tool::ExecuteCommand(CLI::CommandLine* aCmd)
 {
-    char lData [LINE_LENGTH];
-    char lFlags[LINE_LENGTH];
-    int  lResult = 0;
-    unsigned int lSize_byte = 0;
+    assert(nullptr != aCmd);
 
-    if      (0 == strcmp(aC, "ClearDTR"  )) { mPort.SetDTR(false); }
-    else if (0 == strcmp(aC, "ClearRTS"  )) { mPort.SetRTS(false); }
-    else if (0 == strcmp(aC, "Connect"   ))
-    {
-        if (!mPort.Connect(Dev::Device::FLAG_ACCESS_READ | Dev::Device::FLAG_ACCESS_WRITE))
-        {
-            KMS_EXCEPTION(RESULT_CONNECT_FAILED, "Connexion failed", "");
-        }
-    }
-    else if (0 == strcmp(aC, "Disconnect")) { mPort.Disconnect(); }
-    else if (0 == strcmp(aC, "Receive"   )) { Receive(0, 0); }
-    else if (0 == strcmp(aC, "SetDTR"    )) { mPort.SetDTR(true); }
-    else if (0 == strcmp(aC, "SetRTS"    )) { mPort.SetRTS(true); }
-    else if (0 == strcmp(aC, "Status"    )) { std::cout << mPort << std::endl; }
-    else if (2 == sscanf_s(aC, "ReceiveAndVerify_Hex %[0A-Z_|] %[^\n\r\t]", lFlags SizeInfo(lFlags), &lData SizeInfo(lData)))
-    {
-        ReceiveAndVerify_Hex(lData, ToFlags(lFlags));
-    }
-    else if (2 == sscanf_s(aC, "ReceiveAndVerify %[0A-Z_|] %[^\n\r\t]"    , lFlags SizeInfo(lFlags), &lData SizeInfo(lData)))
-    {
-        ReceiveAndVerify(lData, static_cast<unsigned int>(strlen(lData)), ToFlags(lFlags));
-    }
-    else if (1 <= sscanf_s(aC, "Receive %[0A-Z_|] %u"                     , lFlags SizeInfo(lFlags), &lSize_byte))
-    {
-        Receive(lSize_byte, ToFlags(lFlags));
-    }
-    else if (2 == sscanf_s(aC, "Send_Hex %[0A-Z_|] %[^\n\r\t]"            , lFlags SizeInfo(lFlags), &lData SizeInfo(lData)))
-    {
-        Send_Hex(lData, ToFlags(lFlags));
-    }
-    else if (2 == sscanf_s(aC, "Send %[0A-Z_|] %[^\n\r\t]"                , lFlags SizeInfo(lFlags), &lData SizeInfo(lData)))
-    {
-        Send(lData, static_cast<unsigned int>(strlen(lData)), ToFlags(lFlags));
-    }
+    int lResult = __LINE__;
+
+    auto lCmd = aCmd->GetCurrent();
+
+    if      (0 == _stricmp(lCmd, "ClearDTR"        )) { aCmd->Next(); lResult = Cmd_ClearDTR        (aCmd); }
+    else if (0 == _stricmp(lCmd, "ClearRTS"        )) { aCmd->Next(); lResult = Cmd_ClearRTS        (aCmd); }
+    else if (0 == _stricmp(lCmd, "Connect"         )) { aCmd->Next(); lResult = Cmd_Connect         (aCmd); }
+    else if (0 == _stricmp(lCmd, "Disconnect"      )) { aCmd->Next(); lResult = Cmd_Disconnect      (aCmd); }
+    else if (0 == _stricmp(lCmd, "Receive"         )) { aCmd->Next(); lResult = Cmd_Receive         (aCmd); }
+    else if (0 == _stricmp(lCmd, "ReceiveAndVerify")) { aCmd->Next(); lResult = Cmd_ReceiveAndVerify(aCmd); }
+    else if (0 == _stricmp(lCmd, "Send"            )) { aCmd->Next(); lResult = Cmd_Send            (aCmd); }
+    else if (0 == _stricmp(lCmd, "SetDTR"          )) { aCmd->Next(); lResult = Cmd_SetDTR          (aCmd); }
+    else if (0 == _stricmp(lCmd, "SetRTS"          )) { aCmd->Next(); lResult = Cmd_SetRTS          (aCmd); }
+    else if (0 == _stricmp(lCmd, "Status"          )) { aCmd->Next(); lResult = Cmd_Status          (aCmd); }
     else
     {
-        lResult = CLI::Tool::ExecuteCommand(aC);
+        lResult = CLI::Tool::ExecuteCommand(aCmd);
     }
 
     return lResult;
@@ -324,7 +318,7 @@ int Tool::ExecuteCommand(const char* aC)
 
 int Tool::Run()
 {
-    if (!mPort.Connect(Dev::Device::FLAG_ACCESS_READ | Dev::Device::FLAG_ACCESS_WRITE))
+    if (!mPort.Connect())
     {
         KMS_EXCEPTION(RESULT_CONNECT_FAILED, "Connexion failed", "");
     }
@@ -334,6 +328,190 @@ int Tool::Run()
 
 // Private
 // //////////////////////////////////////////////////////////////////////////
+
+int Tool::Cmd_ClearDTR(CLI::CommandLine* aCmd)
+{
+    assert(nullptr != aCmd);
+
+    KMS_EXCEPTION_ASSERT(aCmd->IsAtEnd(), RESULT_INVALID_COMMAND, "Too many command arguments", aCmd->GetCurrent());
+
+    mPort.SetDTR(false);
+
+    return 0;
+}
+
+int Tool::Cmd_ClearRTS(CLI::CommandLine* aCmd)
+{
+    assert(nullptr != aCmd);
+
+    KMS_EXCEPTION_ASSERT(aCmd->IsAtEnd(), RESULT_INVALID_COMMAND, "Too many command arguments", aCmd->GetCurrent());
+
+    mPort.SetRTS(false);
+
+    return 0;
+}
+
+int Tool::Cmd_Connect(CLI::CommandLine* aCmd)
+{
+    assert(nullptr != aCmd);
+
+    KMS_EXCEPTION_ASSERT(aCmd->IsAtEnd(), RESULT_INVALID_COMMAND, "Too many command arguments", aCmd->GetCurrent());
+
+    if (!mPort.Connect())
+    {
+        KMS_EXCEPTION(RESULT_CONNECT_FAILED, "Connexion failed", "");
+    }
+
+    return 0;
+}
+
+int Tool::Cmd_Disconnect(CLI::CommandLine* aCmd)
+{
+    assert(nullptr != aCmd);
+
+    KMS_EXCEPTION_ASSERT(aCmd->IsAtEnd(), RESULT_INVALID_COMMAND, "Too many command arguments", aCmd->GetCurrent());
+
+    mPort.Disconnect();
+
+    return 0;
+}
+
+int Tool::Cmd_Receive(CLI::CommandLine* aCmd)
+{
+    assert(nullptr != aCmd);
+
+    unsigned int lFlags     = 0;
+    unsigned int lSize_byte = 0;
+
+    if (!aCmd->IsAtEnd())
+    {
+        lFlags     =          ToFlags (aCmd->GetCurrent()); aCmd->Next();
+        lSize_byte = Convert::ToUInt32(aCmd->GetCurrent()); aCmd->Next();
+
+        KMS_EXCEPTION_ASSERT(aCmd->IsAtEnd(), RESULT_INVALID_COMMAND, "Too many command arguments", aCmd->GetCurrent());
+    }
+
+    Receive(lSize_byte, lFlags);
+
+    return 0;
+}
+
+int Tool::Cmd_ReceiveAndVerify(CLI::CommandLine* aCmd)
+{
+    assert(nullptr != aCmd);
+
+    int lResult = __LINE__;
+
+    auto lCmd = aCmd->GetCurrent();
+
+    if      (0 == _stricmp(lCmd, "ASCII")) { aCmd->Next(); lResult = Cmd_ReceiveAndVerify_ASCII(aCmd); }
+    else if (0 == _stricmp(lCmd, "Hex"  )) { aCmd->Next(); lResult = Cmd_ReceiveAndVerify_Hex  (aCmd); }
+
+    return lResult;
+}
+
+int Tool::Cmd_ReceiveAndVerify_ASCII(CLI::CommandLine* aCmd)
+{
+    assert(nullptr != aCmd);
+
+    auto lFlags = ToFlags(aCmd->GetCurrent()); aCmd->Next();
+    auto lData  =         aCmd->GetCurrent() ; aCmd->Next();
+
+    KMS_EXCEPTION_ASSERT(aCmd->IsAtEnd(), RESULT_INVALID_COMMAND, "Too many command arguments", aCmd->GetCurrent());
+
+    ReceiveAndVerify(lData, static_cast<unsigned int>(strlen(lData)), lFlags);
+
+    return 0;
+}
+
+int Tool::Cmd_ReceiveAndVerify_Hex(CLI::CommandLine* aCmd)
+{
+    assert(nullptr != aCmd);
+
+    auto lFlags = ToFlags(aCmd->GetCurrent()); aCmd->Next();
+    auto lData  =         aCmd->GetCurrent() ; aCmd->Next();
+
+    KMS_EXCEPTION_ASSERT(aCmd->IsAtEnd(), RESULT_INVALID_COMMAND, "Too many command arguments", aCmd->GetCurrent());
+
+    ReceiveAndVerify_Hex(lData, lFlags);
+    
+    return 0;
+}
+
+int Tool::Cmd_Send(CLI::CommandLine* aCmd)
+{
+    assert(nullptr != aCmd);
+
+    int lResult = __LINE__;
+
+    auto lCmd = aCmd->GetCurrent();
+
+    if      (0 == _stricmp(lCmd, "ASCII")) { aCmd->Next(); lResult = Cmd_Send_ASCII(aCmd); }
+    else if (0 == _stricmp(lCmd, "Hex"  )) { aCmd->Next(); lResult = Cmd_Send_Hex  (aCmd); }
+
+    return lResult;
+}
+
+int Tool::Cmd_Send_ASCII(CLI::CommandLine* aCmd)
+{
+    assert(nullptr != aCmd);
+
+    auto lFlags = ToFlags(aCmd->GetCurrent()); aCmd->Next();
+    auto lData  =         aCmd->GetCurrent() ; aCmd->Next();
+
+    KMS_EXCEPTION_ASSERT(aCmd->IsAtEnd(), RESULT_INVALID_COMMAND, "Too many command arguments", aCmd->GetCurrent());
+
+    Send(lData, static_cast<unsigned int>(strlen(lData)), lFlags);
+
+    return 0;
+}
+
+int Tool::Cmd_Send_Hex(CLI::CommandLine* aCmd)
+{
+    assert(nullptr != aCmd);
+
+    auto lFlags = ToFlags(aCmd->GetCurrent()); aCmd->Next();
+    auto lData  =         aCmd->GetCurrent() ; aCmd->Next();
+
+    KMS_EXCEPTION_ASSERT(aCmd->IsAtEnd(), RESULT_INVALID_COMMAND, "Too many command arguments", aCmd->GetCurrent());
+
+    Send_Hex(lData, lFlags);
+
+    return 0;
+}
+
+int Tool::Cmd_SetDTR(CLI::CommandLine* aCmd)
+{
+    assert(nullptr != aCmd);
+
+    KMS_EXCEPTION_ASSERT(aCmd->IsAtEnd(), RESULT_INVALID_COMMAND, "Too many command arguments", aCmd->GetCurrent());
+
+    mPort.SetDTR(true);
+
+    return 0;
+}
+
+int Tool::Cmd_SetRTS(CLI::CommandLine* aCmd)
+{
+    assert(nullptr != aCmd);
+
+    KMS_EXCEPTION_ASSERT(aCmd->IsAtEnd(), RESULT_INVALID_COMMAND, "Too many command arguments", aCmd->GetCurrent());
+
+    mPort.SetRTS(true);
+
+    return 0;
+}
+
+int Tool::Cmd_Status(CLI::CommandLine* aCmd)
+{
+    assert(nullptr != aCmd);
+
+    KMS_EXCEPTION_ASSERT(aCmd->IsAtEnd(), RESULT_INVALID_COMMAND, "Too many command arguments", aCmd->GetCurrent());
+
+    std::cout << mPort << std::endl;
+
+    return 0;
+}
 
 void Tool::DisplayDumpWrite(const void* aIn, unsigned int aInSize_byte, unsigned int aFlags, const char* aOp)
 {
