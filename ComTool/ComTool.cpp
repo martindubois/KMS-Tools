@@ -11,6 +11,7 @@
 #include <KMS/Banner.h>
 #include <KMS/Cfg/MetaData.h>
 #include <KMS/CLI/CommandLine.h>
+#include <KMS/CLI/Macros.h>
 #include <KMS/CLI/Tool.h>
 #include <KMS/Com/Port.h>
 #include <KMS/Main.h>
@@ -67,8 +68,6 @@ private:
 
     NO_COPY(Tool);
 
-    Com::Port mPort;
-
     int Cmd_ClearDTR              (CLI::CommandLine* aCmd);
     int Cmd_ClearRTS              (CLI::CommandLine* aCmd);
     int Cmd_Connect               (CLI::CommandLine* aCmd);
@@ -89,6 +88,10 @@ private:
     void ReceiveAndVerify_Hex(const char* aIn, unsigned int aFlags);
 
     void Send_Hex(const char* aIn, unsigned int aFlags);
+
+    Com::Port mPort;
+
+    CLI::Macros mMacros;
 
 };
 
@@ -148,7 +151,7 @@ int main(int aCount, const char** aVector)
 // Public
 // //////////////////////////////////////////////////////////////////
 
-Tool::Tool() : mDataFile(nullptr, DATA_FILE_DEFAULT)
+Tool::Tool() : mDataFile(nullptr, DATA_FILE_DEFAULT), mMacros(this)
 {
     mDataFile.SetMode("wb");
 
@@ -159,6 +162,8 @@ Tool::Tool() : mDataFile(nullptr, DATA_FILE_DEFAULT)
     lEntry.Set(&mPort, false); AddEntry("Port", lEntry);
 
     mPort.SetConnectFlags(Dev::Device::FLAG_ACCESS_READ | Dev::Device::FLAG_ACCESS_WRITE);
+
+    AddModule(&mMacros);
 }
 
 void Tool::Receive(unsigned int aSize_byte, unsigned int aFlags)

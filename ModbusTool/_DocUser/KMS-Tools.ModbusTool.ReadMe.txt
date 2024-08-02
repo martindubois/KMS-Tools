@@ -7,6 +7,8 @@ File      ModbusTool/_DocUser/KMS-Tools.ModbusTool.ReadMe.txt
 
 EDIT ON BUILD
 
+-Macros
+
 0.0.2-dev 2024-07-19
 
 0.0.1-dev 2024-01-31

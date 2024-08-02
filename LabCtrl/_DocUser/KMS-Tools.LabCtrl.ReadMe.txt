@@ -7,4 +7,6 @@ File      LabCtrl/_DocUser/KMS-Tools.LabCtrl.ReadMe.txt
 
 EDIT ON BUILD
 
+- Macros
+
 0.0.2-dev 2024-07-19

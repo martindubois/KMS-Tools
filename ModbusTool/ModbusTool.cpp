@@ -13,6 +13,7 @@
 // ===== Import/Includes ====================================================
 #include <KMS/Banner.h>
 #include <KMS/Cfg/MetaData.h>
+#include <KMS/CLI/Macros.h>
 #include <KMS/CLI/Tool.h>
 #include <KMS/Main.h>
 #include <KMS/Modbus/LinkAndMaster_Cfg.h>
@@ -100,6 +101,8 @@ private:
 
     void Scope_Channel(Scope::Channel_Modbus* aChannel, const char* aAddrOrName, const DI::Dictionary& aMap);
 
+    // Modules
+    CLI::Tool          mMacros;
     WGDI::Scope_Module mScope;
 
     Modbus::Master* mMaster;

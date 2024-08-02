@@ -12,6 +12,7 @@
 // ===== Import/Includes ====================================================
 #include <KMS/Banner.h>
 #include <KMS/CLI/InstanceList.h>
+#include <KMS/CLI/Macros.h>
 #include <KMS/CLI/Tool.h>
 #include <KMS/DAQ/AnalogInputModule.h>
 #include <KMS/DAQ/AnalogOutputModule.h>
@@ -59,6 +60,8 @@ private:
     DAQ::DigitalInputModule  mDigitalInputs;
     DAQ::DigitalOutputModule mDigitalOutputs;
 
+    CLI::Macros mMacros;
+
 };
 
 // Entry point
@@ -92,7 +95,7 @@ int main(int aCount, const char** aVector)
 // Public
 // //////////////////////////////////////////////////////////////////////////
 
-Tool::Tool()
+Tool::Tool() : mMacros(this)
 {
     mInstruments.SetAllowedCmds(CLI::InstanceList_Base::CMD_LIST | CLI::InstanceList_Base::CMD_SELECT);
 
@@ -100,6 +103,8 @@ Tool::Tool()
     AddModule(&mAnalogOutputs);
     AddModule(&mDigitalInputs);
     AddModule(&mDigitalOutputs);
+
+    AddModule(&mMacros);
 }
 
 void Tool::DisplayHelp(FILE* aOut) const

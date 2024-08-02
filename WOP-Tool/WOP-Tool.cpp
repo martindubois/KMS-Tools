@@ -9,6 +9,7 @@
 
 // ===== Import/Includes ====================================================
 #include <KMS/Banner.h>
+#include <KMS/CLI/Macros.h>
 #include <KMS/CLI/Tool.h>
 #include <KMS/Com/Port.h>
 #include <KMS/Main.h>
@@ -59,6 +60,7 @@ private:
     WOP::Link_Port      mLink;
     WOP::Object       * mInstances[255];
     WOP::Object_Dynamic mDynamics[255];
+    CLI::Macros         mMacros;
     WOP::System         mSystem;
 
 };
@@ -94,6 +96,7 @@ int main(int aCount, const char** aVector)
 
 Tool::Tool()
     : mLink(&mSystem, &mPort)
+    , mMacros(this)
     , mSystem(VERSION, 0xffffffff, 0xff)
 {
     for (unsigned int i = 0; i < 255; i++)
@@ -108,6 +111,8 @@ Tool::Tool()
     lEntry.Set(&mPort, false); AddEntry("Port", lEntry);
 
     mPort.SetConnectFlags(Dev::Device::FLAG_ACCESS_READ | Dev::Device::FLAG_ACCESS_WRITE);
+
+    AddModule(&mMacros);
 }
 
 // ===== CLI::Tool ==========================================================
