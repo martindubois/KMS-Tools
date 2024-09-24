@@ -9,12 +9,16 @@ Name                _________________________________________________________
 
 Date and time       20 ______ - ______ - ______               ______ : ______
 
-Computer            _________________________________________________________
+Computer            ____________________ ()    KMS-F_L ()    KMS-Framework ()
 
 File "Common/Version.h" - Edit the Version                                [ ]
 
-Version             ______ . ______ . ______ . ______ - _____________________
-                    {Ma}     {Mi}     {Bu}              {Type}
+Version             ______ . ______ . ______ . ______                     ( )
+                    {Ma}     {Mi}     {Bu}            -dev                ( )
+                                                      -rc                 ( )
+                                                      -test               ( )
+                                                      - _________________ ( )
+                                                        {Type}
 
 Search "EDIT ON BUILD" and edit found file as needed                      [ ]
 

@@ -7,6 +7,8 @@ File      _DocUser/KMS-Tools.ReadMe.txt
 
 EDIT ON BUILD
 
+0.0.3-dev 2024-09-24
+
 0.0.2-dev 2024-07-19
 * LabCtrl
 

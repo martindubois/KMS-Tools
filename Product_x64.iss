@@ -10,9 +10,9 @@ AppName=KMS-Tools
 AppPublisher=KMS
 AppPublisherURL=https://www.kms-quebec.com
 AppSupportURL=https://www.kms-quebec.com
-AppVersion=0.0.2-dev
+AppVersion=0.0.3-dev
 DefaultDirName={pf}\KMS-Tools
-OutputBaseFilename=KMS-Tools_0.0.2-dev_x64
+OutputBaseFilename=KMS-Tools_0.0.3-dev_x64
 OutputDir=Installer
 
 [Files]
