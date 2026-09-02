@@ -1,6 +1,6 @@
 
 ; Author    KMS - Martin Dubois, P. Eng.
-; Copyright (C) 2023-2024 KMS
+; Copyright (C) 2023-2026 KMS
 ; License   http://www.apache.org/licenses/LICENSE-2.0
 ; Product   KMS-Tools
 ; File      Product_x64.iss
@@ -33,6 +33,7 @@ Source: "PGeo\PGeo_GUI.cmd"                                   ; DestDir: "{app}"
 Source: "WOP-Tool\_DocUser\KMS-Tools.WOP-Tool.ReadMe.txt"     ; DestDir: "{app}"
 Source: "WOP-Tool\WOP-Tool_GUI.cmd"                           ; DestDir: "{app}"
 Source: "x64\Release_Static\ComTool.exe"                      ; DestDir: "{app}"
+Source: "x64\Release_Static\EOL.exe"                          ; DestDir: "{app}"
 Source: "x64\Release_Static\LabCtrl.exe"                      ; DestDir: "{app}"
 Source: "x64\Release_Static\Launcher.exe"                     ; DestDir: "{app}"
 Source: "x64\Release_Static\ModbusSim.exe"                    ; DestDir: "{app}"
