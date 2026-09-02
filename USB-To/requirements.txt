@@ -1,0 +1,8 @@
+# Author    KMS - Martin Dubois, P. Eng.
+# Copyright (C) 2026 KMS
+# License   http://www.apache.org/licenses/LICENSE-2.0
+# Product   KMS-Tools
+# File      USB-To/requirements.txt
+
+# Required by USB-To-I2C.py to talk to the CH347 chip over USB HID.
+hidapi==0.15.0
