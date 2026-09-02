@@ -1,0 +1,11 @@
+
+Author    KMS - Martin Dubois, P. Eng.
+Copyright (C) 2026 KMS
+License   http://www.apache.org/licenses/LICENSE-2.0
+Product   KMS-Tools
+File      USB-To/_DocUser/KMS-Tools.USB-To.ReadMe.txt
+
+EDIT ON BUILD
+
+0.0.3-dev 2026-09-02
+- USB-To-I2C.py
